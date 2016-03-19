@@ -1,0 +1,11 @@
+body {
+	margin: 0px;
+	background-color: silver;
+}
+
+.card {
+	box-shadow: 1px 0px 1px rgba(0, 0, 0, 0.25);
+	background-color: white;
+}
+	
+	

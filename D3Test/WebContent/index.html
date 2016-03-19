@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+/* CSS goes here. */
+
+</style>
+<html style='height: 100%'>
+<body style='height: 100%'>
+<div id="container" style='height: 100%; width: 50%' ></div>	
+</body>
+</html>
+<script src="js/d3.min.js" charset="utf-8"></script>
+<script>
+
+
+var width = 1160,
+height = 860;
+
+
+var svg = d3.select("#container").append("svg")
+.attr("width", "200%")
+.attr("height", "100%");
+
+
+
+
+d3.json("model/countries.geo.json", function(error, world) {
+	  if (error) return console.error(error);
+  
+	//Define map projection
+      var projection = d3.geo.mercator()
+                             .translate([width/2, height/2])
+                             .scale([120]);
+
+      //Define path generator
+      var path = d3.geo.path()
+                       .projection(projection);
+	
+
+      
+    //Bind data and create one path per GeoJSON feature
+    svg.selectAll("path")
+       .data(world.features)
+       .enter()
+       .append("path")
+       .attr("id",function(d,i){return d.id;})
+       .attr("d", path)
+       .style("fill", "steelblue")
+       .style("stroke", "black")
+     	;
+       //.attr("transform",function(d, i){console.log(this); console.log(path); return "translate(" + projection(d.geometry.coordinates) + ")";})
+
+	  
+    
+    svg.selectAll("text")
+    	.data(world.features)
+    	.enter()
+    	.append("text")
+    	.text(function(d){return d.properties.name})
+    	.attr("transform", function(d ,i){
+    		var bbox = svg.select("#"+String(d.id)).node().getBBox(); 
+    		console.log(bbox);
+    		console.log(d.id);
+    		//return "translate("+ Math.floor(bbox.x + bbox.width/2.0) +"," + Math.floor(bbox.y + bbox.height/2.0)+")";
+    		return "translate("+path.centroid(d)+")";
+    		})
+    	.attr("dy", ".15em")
+    	;
+	  /*
+	  svg.append("path")
+	      .datum(topojson.feature(world, world.objects.subunits))
+	      .attr("d", d3.geo.path().projection(d3.geo.mercator()));
+	*/
+
+	
+});
+
+</script>
