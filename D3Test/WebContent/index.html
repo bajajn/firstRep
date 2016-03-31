@@ -26,6 +26,7 @@ var svg = d3.select("#container").append("svg")
 
 
 d3.json("model/countries.geo.json", function(error, world) {
+		console.log("World is "+world);
 	  if (error) return console.error(error);
   
 	//Define map projection
@@ -60,8 +61,6 @@ d3.json("model/countries.geo.json", function(error, world) {
     	.text(function(d){return d.properties.name})
     	.attr("transform", function(d ,i){
     		var bbox = svg.select("#"+String(d.id)).node().getBBox(); 
-    		console.log(bbox);
-    		console.log(d.id);
     		//return "translate("+ Math.floor(bbox.x + bbox.width/2.0) +"," + Math.floor(bbox.y + bbox.height/2.0)+")";
     		return "translate("+path.centroid(d)+")";
     		})
