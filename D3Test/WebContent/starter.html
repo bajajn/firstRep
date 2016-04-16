@@ -152,12 +152,6 @@
 						Data Trend (%)
 						</div>
 						<div class="panel-body" id="map_chart">
-							<div class="reset" style="visibility: hidden;">
-								selected: <span class="filter"></span> <a
-									href="javascript:testRingChart.filterAll();dc.redrawAll();">reset</a>
-							</div>
-										
-										<!-- <svg id="trends_svg" width="100%" height="100%"></svg>  -->
 						</div>
 					</div>
           			
@@ -214,7 +208,9 @@
 <script src="js/crossfilter.min.js"></script>
 <script src="js/dc.min.js"></script>
 <script>
+/*
 http://jsfiddle.net/djmartin_umich/9VJHe/
+ */
 
 
 function print_filter(filter){
@@ -244,8 +240,140 @@ var lineChart1 = dc.compositeChart("#total_line_chart");
 var percentChart = dc.compositeChart("#percent_chart");
 var categoryChart = dc.pieChart("#category_chart");
 var statusChart = dc.rowChart("#status_chart");
-var mapChart =  dc.geoChoroplethChart("#map_chart");
 var timeline = dc.barChart("#test_line_chart");
+var mapChart =  dc.geoChoroplethChart("#map_chart");
+
+
+
+
+d3.json("model/countries.geo.json", function(error, world){
+
+	
+	d3.json("model/data.json", function(error, dataValues) {
+		rows=dataValues.data;
+		
+		rows.forEach(function(d) {
+			d.dateObj = parseDate(d.date)
+			d.monthDate = d3.time.month.floor(d.dateObj);
+			d.yearDate=d3.time.year.floor(d.dateObj);
+		});
+		
+		ndx = crossfilter(rows);
+		var all = ndx.groupAll();
+		var dateDim = ndx.dimension(function (d) {return d.dateObj});
+		
+		calculateCharts(timeGroup);
+		
+		var monthDim = ndx.dimension(function (d) { return d.monthDate; });
+		var monthDim1 = ndx.dimension(function (d) { return d.monthDate; });
+		var categoryDim = ndx.dimension(function (d) { return d.type; });
+		var statusDim = ndx.dimension(function (d) {return d.status;});
+		var countryDim = ndx.dimension(function(d){return d.country;});
+		
+		
+		var countryGrpCount = countryDim.group().reduceCount();
+		var timelineGrp = dateDim.group().reduceCount();
+		var typeTotal = categoryDim.group().reduceCount();
+		var statusTotal = statusDim.group().reduceCount();
+		var monthGrpProcessed = monthDim1.group().reduceSum(function(d){if(d.status == "processed") {return 1;} else {return 0;} })
+		
+		
+		
+		function testFunction(d){
+			pieTip.show(d);
+			var testRowChart = dc.rowChart('#rowchart_'+d.data.key);
+			testRowChart.width(200)
+		    .height(200)
+		    //.margins({top: 20, left: 10, right: 10, bottom: 20})
+		    .transitionDuration(750)
+		    .group(monthGrpProcessed)
+		    .dimension(monthDim1)
+			.x(d3.time.scale().domain([minDate,maxDate]))
+		    //.colors(expenseColors)
+		    //.renderLabel(true)
+		    //.gap(9)
+		    .title(function (d) { return ""; })
+		    .elasticX(true);
+			
+			testRowChart.render();
+		    //.xAxis().ticks(5).tickFormat(d3.format("s"));
+
+
+		}
+		
+
+		var minDate = monthDim.bottom(1)[0].monthDate;
+		var maxDate = monthDim.top(1)[0].monthDate;
+
+		
+		statusChart.width(500)
+	    .height(300)
+	    //.margins({top: 20, left: 10, right: 10, bottom: 20})
+	    .group(statusTotal)
+	    .dimension(statusDim)
+		//.x(d3.scale.linear().domain([minDate,maxDate]))
+	    .title(function (d) { return ""; })
+	    .elasticX(true);
+		          
+		categoryChart
+		 .dimension(categoryDim)
+		 .group(typeTotal)
+		 .innerRadius(50)
+		 //.title("abc")
+		 .title(function (d) { return ""; })
+		 .controlsUseVisibility(true)
+		 .renderLabel(false);
+	       
+		
+		mapChart
+		.width(990)
+	    .height(500)
+	    .dimension(countryDim)
+	    .group(countryGrpCount) 
+	    .projection(d3.geo.mercator())
+		    .overlayGeoJson(world.features, "state", function (d1) {
+		        return d1.id;
+		    });
+		          
+		timeline
+		.width(700)
+		.height(50)
+		.dimension(dateDim)
+		.x(d3.time.scale().domain([d3.time.year.floor(dateDim.bottom(1)[0].dateObj), d3.time.year.ceil(dateDim.top(1)[0].dateObj)]))
+		.brushOn(true)
+		.controlsUseVisibility(true)
+		.group(timelineGrp,"Trades/Day");
+		
+		var datatable   = dc.dataTable("#data_table");
+		datatable
+		    .dimension(monthDim)
+		    .group(function(d) {return d.type;})
+		    // dynamic columns creation using an array of closures
+		    .columns([
+		        function(d) { return d.dateObj; },
+		        function(d) {return d.status;},
+		        function(d) {return d.country;},
+		        function(d) {return d.type;},        
+		    ]);
+		
+		
+		dc.renderAll();
+		
+		d3.selectAll(".pie-slice").call(pieTip);
+	    d3.selectAll(".pie-slice").on('mouseover', testFunction)
+	        .on('mouseout', pieTip.hide);
+
+	    
+		
+	});
+	
+	
+	
+	
+	
+});
+
+
 
 
 var pieTip = d3.tip()
@@ -351,7 +479,7 @@ function calculateCharts(timeGrp){
 		}
 	);
 	
-	console.log("Yearly stats "+yrStatGroup);
+
 	
 	lineChart1
 	.width(500).height(200)
@@ -439,126 +567,10 @@ function calculateCharts(timeGrp){
 
 
 
-d3.json("model/data.json", function(error, dataValues) {
-	rows=dataValues.data;
-	
-	rows.forEach(function(d) {
-		d.dateObj = parseDate(d.date)
-		d.monthDate = d3.time.month.floor(d.dateObj);
-		d.yearDate=d3.time.year.floor(d.dateObj);
-	});
-	
-	ndx = crossfilter(rows);
-	var all = ndx.groupAll();
-	var dateDim = ndx.dimension(function (d) {return d.dateObj});
-	
-	calculateCharts(timeGroup);
-	
-	var monthDim = ndx.dimension(function (d) { return d.monthDate; });
-	
-	
-	var monthDim1 = ndx.dimension(function (d) { return d.monthDate; });
-	var categoryDim = ndx.dimension(function (d) { return d.type; });
-	var statusDim = ndx.dimension(function (d) {return d.status;})
-	
-	var timelineGrp = dateDim.group().reduceCount();
-	
-	var typeTotal = categoryDim.group().reduceCount();
-	var statusTotal = statusDim.group().reduceCount();
-	var monthGrpProcessed = monthDim1.group().reduceSum(function(d){if(d.status == "processed") {return 1;} else {return 0;} })
-	
-	
-	
-	function testFunction(d){
-		pieTip.show(d);
-		var testRowChart = dc.rowChart('#rowchart_'+d.data.key);
-		testRowChart.width(200)
-	    .height(200)
-	    //.margins({top: 20, left: 10, right: 10, bottom: 20})
-	    .transitionDuration(750)
-	    .group(monthGrpProcessed)
-	    .dimension(monthDim1)
-		.x(d3.time.scale().domain([minDate,maxDate]))
-	    //.colors(expenseColors)
-	    //.renderLabel(true)
-	    //.gap(9)
-	    .title(function (d) { return ""; })
-	    .elasticX(true);
-		
-		testRowChart.render();
-	    //.xAxis().ticks(5).tickFormat(d3.format("s"));
 
 
-	}
-	
 
-	var minDate = monthDim.bottom(1)[0].monthDate;
-	var maxDate = monthDim.top(1)[0].monthDate;
 
-	
-	statusChart.width(500)
-    .height(300)
-    //.margins({top: 20, left: 10, right: 10, bottom: 20})
-    .group(statusTotal)
-    .dimension(statusDim)
-	//.x(d3.scale.linear().domain([minDate,maxDate]))
-    .title(function (d) { return ""; })
-    .elasticX(true);
-	          
-	categoryChart
-	 .dimension(categoryDim)
-	 .group(typeTotal)
-	 .innerRadius(50)
-	 //.title("abc")
-	 .title(function (d) { return ""; })
-	 .controlsUseVisibility(true)
-	 .renderLabel(false);
-       
-	mapChart
-	.width(990)
-    .height(500)
-    .dimension(states)
-    .group(stateRaisedSum)                
-    .colors(d3.scale.quantize().range(
-        ["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))
-    .colorDomain([0, 200])
-    .colorCalculator(function (d) { return d ? usChart.colors()(d) : '#ccc'; })
-    .overlayGeoJson(statesJson.features, "state", function (d) {
-        return d.properties.name;
-    });
-
-	          
-	timeline
-	.width(700)
-	.height(50)
-	.dimension(dateDim)
-	.x(d3.time.scale().domain([d3.time.year.floor(dateDim.bottom(1)[0].dateObj), d3.time.year.ceil(dateDim.top(1)[0].dateObj)]))
-	.brushOn(true)
-	.controlsUseVisibility(true)
-	.group(timelineGrp,"Trades/Day");
-	
-	var datatable   = dc.dataTable("#data_table");
-	datatable
-	    .dimension(monthDim)
-	    .group(function(d) {return d.type;})
-	    // dynamic columns creation using an array of closures
-	    .columns([
-	        function(d) { return d.dateObj; },
-	        function(d) {return d.status;},
-	        function(d) {return d.country;},
-	        function(d) {return d.type;},        
-	    ]);
-	
-	
-	dc.renderAll();
-	
-	d3.selectAll(".pie-slice").call(pieTip);
-    d3.selectAll(".pie-slice").on('mouseover', testFunction)
-        .on('mouseout', pieTip.hide);
-
-    
-	
-});
 
 
 /*
