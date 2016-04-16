@@ -10,7 +10,6 @@
 	<link rel="stylesheet" href="css/dc.css">
 </head>
 <title>Data Analysis</title>
-
 <body>
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container-fluid">
@@ -56,9 +55,46 @@
           			<div class="col-sm-9 col-md-10">
           				<div class="panel panel-card">
           					<div class="panel-title">
-          					Data Trend
+          					Data Trend (Count)
           					</div>
           					<div class="panel-body" id="total_line_chart">
+          					<!-- <svg id="trends_svg" width="100%" height="100%"></svg>  -->
+          					</div>
+          				</div>
+          			</div>
+          			<div class="col-sm-3 col-md-2">
+          				<div class="btn-group" data-toggle="buttons">
+						  <label class="btn btn-primary ">
+						    <input type="radio" name="options" id="day" value="day" autocomplete="off"> Daily
+						  </label>
+						  <label class="btn btn-primary active" >
+						    <input type="radio" name="options" id="month" value="month" autocomplete="off" checked> Monthly
+						  </label>
+						  <label class="btn btn-primary">
+						    <input type="radio" name="options" id="quater" value ="quater" autocomplete="off"> Quaterly
+						  </label>
+						  <label class="btn btn-primary">
+						    <input type="radio" name="options" id="year" value = "year" autocomplete="off"> Yearly
+						  </label>
+						  
+						</div>
+					</div>
+
+													
+          		</div>
+          		
+          		<div class="row">
+          			<div class="col-sm-9 col-md-10">
+          				<div class="panel panel-card">
+          					<div class="panel-title">
+          					Data Trend (%)
+          					</div>
+          					<div class="panel-body" id="percent_chart">
+          								<div class="reset" style="visibility: hidden;">
+											selected: <span class="filter"></span> <a
+												href="javascript:testRingChart.filterAll();dc.redrawAll();">reset</a>
+										</div>
+          					
           					<!-- <svg id="trends_svg" width="100%" height="100%"></svg>  -->
           					</div>
           				</div>
@@ -67,6 +103,103 @@
           				def
           			</div>
           		</div>
+          		
+          		<div class="row">
+          			<div class="col-sm-9 col-md-10">
+          				<div class="panel panel-card">
+          					<div class="panel-title">
+          					Data Trend (%)
+          					</div>
+          					<div class="panel-body" id="category_chart">
+          								<div class="reset" style="visibility: hidden;">
+											selected: <span class="filter"></span> <a
+												href="javascript:testRingChart.filterAll();dc.redrawAll();">reset</a>
+										</div>
+          					
+          					<!-- <svg id="trends_svg" width="100%" height="100%"></svg>  -->
+          					</div>
+          				</div>
+          			</div>
+          			<div class="col-sm-3 col-md-2">
+          				def
+          			</div>
+          		</div>
+          		
+          		<div class="row">
+          			<div class="col-sm-9 col-md-10">
+          				<div class="panel panel-card">
+          					<div class="panel-title">
+          					Data Trend (%)
+          					</div>
+          					<div class="panel-body" id="status_chart">
+          								<div class="reset" style="visibility: hidden;">
+											selected: <span class="filter"></span> <a
+												href="javascript:testRingChart.filterAll();dc.redrawAll();">reset</a>
+										</div>
+          					
+          					<!-- <svg id="trends_svg" width="100%" height="100%"></svg>  -->
+          					</div>
+          				</div>
+          			</div>
+          			<div class="col-sm-3 col-md-2">
+          				def
+          			</div>
+          		</div>
+				<div class="row">
+          			
+					<div class="panel panel-card">
+						<div class="panel-title">
+						Data Trend (%)
+						</div>
+						<div class="panel-body" id="map_chart">
+							<div class="reset" style="visibility: hidden;">
+								selected: <span class="filter"></span> <a
+									href="javascript:testRingChart.filterAll();dc.redrawAll();">reset</a>
+							</div>
+										
+										<!-- <svg id="trends_svg" width="100%" height="100%"></svg>  -->
+						</div>
+					</div>
+          			
+          		</div>
+          		
+          		
+          		<div class="row">
+          			<div class="col-sm-9 col-md-10">
+          				<div class="panel panel-card">
+          					<div class="panel-title">
+          					Data Trend (%)
+          					</div>
+          					<div class="panel-body" id="test_line_chart"><!-- 
+										<div class="reset" style="visibility: hidden;">
+											selected: <span class="filter"></span> <a
+												href="javascript:lineChart_test.filterAll();dc.redrawAll();">reset</a>
+										</div> -->
+										<!-- <svg id="trends_svg" width="100%" height="100%"></svg>  -->
+          					</div>
+          				</div>
+          			</div>
+          			<div class="col-sm-3 col-md-2">
+          				def
+          			</div>
+          		</div>
+          		
+          		<div class="row">
+          			<div class="col-sm-9 col-md-10">
+          				<div class="panel panel-card">
+          					<div class="panel-title">
+          					Data Trend (%)
+          					</div>
+          					<div class="panel-body" id="data_table">
+          					<!-- <svg id="trends_svg" width="100%" height="100%"></svg>  -->
+          					</div>
+          				</div>
+          			</div>
+          			<div class="col-sm-3 col-md-2">
+          				def
+          			</div>
+          		</div>
+          		
           	</div>
           </div>
         </div>
@@ -77,9 +210,13 @@
 <script src="js/jquery-2.2.2.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/d3.min.js"></script>
+<script src="js/d3-tip/index.js"></script>
 <script src="js/crossfilter.min.js"></script>
 <script src="js/dc.min.js"></script>
 <script>
+http://jsfiddle.net/djmartin_umich/9VJHe/
+
+
 function print_filter(filter){
 	var f=eval(filter);
 	if (typeof(f.length) != "undefined") {}else{}
@@ -88,39 +225,338 @@ function print_filter(filter){
 	console.log(filter+"("+f.length+") = "+JSON.stringify(f).replace("[","[\n\t").replace(/}\,/g,"},\n\t").replace("]","\n]"));
 } 
 
+var parseDate = d3.time.format("%d-%m-%Y").parse;
+var timeGroup = $("input[name=options]:checked").val();
+$(document).ready(function(){
+	$("input[name=options]").change(function(){
+		timeGroup = $("input[name=options]:checked").val();
+		calculateCharts(timeGroup);
+		dc.renderAll();
+	})
+})
+
+
+
 var rows={};
+var ndx;
+
+var lineChart1 = dc.compositeChart("#total_line_chart");
+var percentChart = dc.compositeChart("#percent_chart");
+var categoryChart = dc.pieChart("#category_chart");
+var statusChart = dc.rowChart("#status_chart");
+var mapChart =  dc.geoChoroplethChart("#map_chart");
+var timeline = dc.barChart("#test_line_chart");
+
+
+var pieTip = d3.tip()
+                  .attr('class', 'd3-tip')
+                  .offset([30, 30])
+                  .html(function (d) { 
+                	  return "<div id ='rowchart_"+d.data.key+"'></div>";
+                	  //return "<span style='color: #f0027f'>" +  d.data.key + "</span> : "  + d.value;
+                	  });
+
+
+
+function calculateCharts(timeGrp){
+	var dim;
+
+	switch(timeGrp) {
+	    case "day":
+	    	dim = ndx.dimension(function (d) { return d.dateObj; });
+	    	lineChart1.x(d3.time.scale().domain([d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)]));
+	    	percentChart.x(d3.time.scale().domain([d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)]));
+	        break;
+	    case "month":
+	    	dim = ndx.dimension(function (d) { return d.dateObj.getMonth(); });
+	    	lineChart1.x(d3.scale.linear().domain([0, 12]));
+	    	percentChart.x(d3.scale.linear().domain([0, 12]));
+	        break;
+	    case "quater":
+	        dim = ndx.dimension(function (d) {
+	            var month = d.dateObj.getMonth();
+	            if (month <= 2) {
+	                return 1;
+	            } else if (month > 2 && month <= 5) {
+	                return 2;
+	            } else if (month > 5 && month <= 8) {
+	                return 3;
+	            } else {
+	                return 4;
+	            }
+	        });
+	        lineChart1.x(d3.scale.linear().domain([1,5]));
+	        percentChart.x(d3.scale.linear().domain([1,5]));
+	        break;
+	    case "year":
+	    	dim = ndx.dimension(function (d) { return d.dateObj.getFullYear(); });
+	    	lineChart1.x(d3.scale.linear().domain([0, 4000]));
+	    	percentChart.x(d3.scale.linear().domain([0, 4000]));
+	        break;
+
+	} ;
+	
+	var yrStatGroup = dim.group().reduce(
+		function (p,v){
+			p.totalCount++;
+			if(v.status == "processed") p.processedCount++;
+			if(v.status == "in-repair") p.repairCount++;
+			if(v.status == "failure") p.failureCount++;
+			if(v.type == "cat1") p.cat1Count++;
+			if(v.type == "cat2") p.cat2Count++;
+			
+			
+			p.processPercent = (p.processedCount/p.totalCount)*100;
+			p.failurePercent = (p.failureCount/p.totalCount)*100;
+			p.repairPercent = (p.repairCount/p.totalCount)*100;
+			p.cat1Percent = (p.cat1Count/p.totalCount)*100;
+			p.cat2Percent = (p.cat2Count/p.totalCount)*100;
+			
+			return p;
+		},
+		
+		function (p,v){
+			p.totalCount--;
+			if(v.status == "processed") p.processedCount--;
+			if(v.status == "in-repair") p.repairCount--;
+			if(v.status == "failure") p.failureCount--;
+			if(v.type == "cat1") p.cat1Count--;
+			if(v.type == "cat2") p.cat2Count--;
+			
+			
+			p.processPercent = (p.processedCount/p.totalCount)*100;
+			p.failurePercent = (p.failureCount/p.totalCount)*100;
+			p.repairPercent = (p.repairCount/p.totalCount)*100;
+			p.cat1Percent = (p.cat1Count/p.totalCount)*100;
+			p.cat2Percent = (p.cat2Count/p.totalCount)*100;
+			
+			return p;
+		},
+		
+		function (){
+			return {
+				totalCount: 0,
+				processedCount: 0,
+				failureCount: 0,
+				repairCount: 0,
+				cat1Count: 0,
+				cat2Count: 0,
+				processPercent: 0,
+				failurePercent: 0,
+				repairPercent: 0,
+				cat1Percent: 0,
+				cat2Percent: 0
+            };
+			
+		}
+	);
+	
+	console.log("Yearly stats "+yrStatGroup);
+	
+	lineChart1
+	.width(500).height(200)
+	.dimension(dim)
+	//.x(d3.time.scale().domain([d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)]))
+	.elasticY(true)
+	//.elasticX(true)
+	.brushOn(false)
+	//.xAxis().ticks(d3.time.months)
+	//.tickFormat(d3.time.format("%B"))
+	.compose([
+	          
+	          dc.lineChart(lineChart1).group(yrStatGroup,"Total")
+	          .valueAccessor(function (p) {
+	              return p.value.totalCount;
+	          }),
+	          
+	          dc.lineChart(lineChart1).group(yrStatGroup,"Processed")
+	          .valueAccessor(function (p) {
+	              return p.value.processedCount;
+	          }),
+	          
+	          dc.lineChart(lineChart1).group(yrStatGroup,"In-Repair")
+	          .valueAccessor(function (p) {
+	              return p.value.repairCount;
+	          }),
+	          
+	          dc.lineChart(lineChart1).group(yrStatGroup,"Failed")
+	          .valueAccessor(function (p) {
+	              return p.value.failureCount;
+	          }),
+	          
+	          dc.barChart(lineChart1).group(yrStatGroup,"Cat1")
+	          .valueAccessor(function (p) {
+	              return p.value.cat1Count;
+	          }),
+	          
+	          dc.barChart(lineChart1).group(yrStatGroup,"Cat2")
+	          .valueAccessor(function (p) {
+	              return p.value.cat2Count;
+	          })
+	          
+	          ]);
+	
+	
+	percentChart
+	.width(500).height(200)
+	.dimension(dim)
+	//.x(d3.time.scale().domain([d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)]))
+	.elasticY(true)
+	//.elasticX(true)
+	.brushOn(false)
+	//.xAxis().ticks(d3.time.months)
+	//.tickFormat(d3.time.format("%B"))
+	.compose([
+	          dc.lineChart(percentChart).group(yrStatGroup,"Processed%")
+	          .valueAccessor(function (p) {
+	              return p.value.processPercent;
+	          }),
+	          
+	          dc.lineChart(percentChart).group(yrStatGroup,"In-Repair%")
+	          .valueAccessor(function (p) {
+	              return p.value.repairPercent;
+	          }),
+	          
+	          dc.lineChart(percentChart).group(yrStatGroup,"Failure%")
+	          .valueAccessor(function (p) {
+	              return p.value.failurePercent;
+	          }),
+	          
+	          dc.barChart(percentChart).group(yrStatGroup,"Cat1%")
+	          .valueAccessor(function (p) {
+	              return p.value.cat1Percent;
+	          }),
+	          
+	          dc.barChart(percentChart).group(yrStatGroup,"Cat2%")
+	          .valueAccessor(function (p) {
+	              return p.value.cat2Percent;
+	          })
+	          
+	          
+	          ]);
+	
+}
+
+
 
 d3.json("model/data.json", function(error, dataValues) {
 	rows=dataValues.data;
-
-	
-	var lineChart = dc.lineChart("#total_line_chart");
-	var ndx = crossfilter(rows);
-	
 	
 	rows.forEach(function(d) {
 		d.dateObj = parseDate(d.date)
-		d.month = parseDate(d.date);
-		d.year= d.http_404+d.http_200+d.http_302;
+		d.monthDate = d3.time.month.floor(d.dateObj);
+		d.yearDate=d3.time.year.floor(d.dateObj);
 	});
 	
+	ndx = crossfilter(rows);
+	var all = ndx.groupAll();
+	var dateDim = ndx.dimension(function (d) {return d.dateObj});
 	
-	var dateDim = ndx.dimension(function (d) { return d.date; });
-	var dateGrpDim = dateDim.group().reduceCount();
+	calculateCharts(timeGroup);
 	
-	var dateFilter = dateDim.filter("21-07-2016");
-	print_filter(dateFilter);
+	var monthDim = ndx.dimension(function (d) { return d.monthDate; });
 	
-	var minDate = dateDim.bottom(1)[0].date;
-	var maxDate = dateDim.top(1)[0].date;
+	
+	var monthDim1 = ndx.dimension(function (d) { return d.monthDate; });
+	var categoryDim = ndx.dimension(function (d) { return d.type; });
+	var statusDim = ndx.dimension(function (d) {return d.status;})
+	
+	var timelineGrp = dateDim.group().reduceCount();
+	
+	var typeTotal = categoryDim.group().reduceCount();
+	var statusTotal = statusDim.group().reduceCount();
+	var monthGrpProcessed = monthDim1.group().reduceSum(function(d){if(d.status == "processed") {return 1;} else {return 0;} })
+	
+	
+	
+	function testFunction(d){
+		pieTip.show(d);
+		var testRowChart = dc.rowChart('#rowchart_'+d.data.key);
+		testRowChart.width(200)
+	    .height(200)
+	    //.margins({top: 20, left: 10, right: 10, bottom: 20})
+	    .transitionDuration(750)
+	    .group(monthGrpProcessed)
+	    .dimension(monthDim1)
+		.x(d3.time.scale().domain([minDate,maxDate]))
+	    //.colors(expenseColors)
+	    //.renderLabel(true)
+	    //.gap(9)
+	    .title(function (d) { return ""; })
+	    .elasticX(true);
+		
+		testRowChart.render();
+	    //.xAxis().ticks(5).tickFormat(d3.format("s"));
 
-	lineChart
-	.width(500).height(200)
-	.dimension(dateDim)
-	.group(dateGrpDim)
-	.x(d3.time.scale().domain([minDate,maxDate]));
+
+	}
 	
-	dc.renderAll(); 
+
+	var minDate = monthDim.bottom(1)[0].monthDate;
+	var maxDate = monthDim.top(1)[0].monthDate;
+
+	
+	statusChart.width(500)
+    .height(300)
+    //.margins({top: 20, left: 10, right: 10, bottom: 20})
+    .group(statusTotal)
+    .dimension(statusDim)
+	//.x(d3.scale.linear().domain([minDate,maxDate]))
+    .title(function (d) { return ""; })
+    .elasticX(true);
+	          
+	categoryChart
+	 .dimension(categoryDim)
+	 .group(typeTotal)
+	 .innerRadius(50)
+	 //.title("abc")
+	 .title(function (d) { return ""; })
+	 .controlsUseVisibility(true)
+	 .renderLabel(false);
+       
+	mapChart
+	.width(990)
+    .height(500)
+    .dimension(states)
+    .group(stateRaisedSum)                
+    .colors(d3.scale.quantize().range(
+        ["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))
+    .colorDomain([0, 200])
+    .colorCalculator(function (d) { return d ? usChart.colors()(d) : '#ccc'; })
+    .overlayGeoJson(statesJson.features, "state", function (d) {
+        return d.properties.name;
+    });
+
+	          
+	timeline
+	.width(700)
+	.height(50)
+	.dimension(dateDim)
+	.x(d3.time.scale().domain([d3.time.year.floor(dateDim.bottom(1)[0].dateObj), d3.time.year.ceil(dateDim.top(1)[0].dateObj)]))
+	.brushOn(true)
+	.controlsUseVisibility(true)
+	.group(timelineGrp,"Trades/Day");
+	
+	var datatable   = dc.dataTable("#data_table");
+	datatable
+	    .dimension(monthDim)
+	    .group(function(d) {return d.type;})
+	    // dynamic columns creation using an array of closures
+	    .columns([
+	        function(d) { return d.dateObj; },
+	        function(d) {return d.status;},
+	        function(d) {return d.country;},
+	        function(d) {return d.type;},        
+	    ]);
+	
+	
+	dc.renderAll();
+	
+	d3.selectAll(".pie-slice").call(pieTip);
+    d3.selectAll(".pie-slice").on('mouseover', testFunction)
+        .on('mouseout', pieTip.hide);
+
+    
 	
 });
 
@@ -181,5 +617,6 @@ trendsSvg.append("svg:g")
 .call(xAxis);
 */
 </script>
+
 </body>
 </html>
