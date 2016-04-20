@@ -388,7 +388,7 @@ var pieTip = d3.tip()
 
 function calculateCharts(timeGrp){
 	var dim;
-
+	
 	switch(timeGrp) {
 	    case "day":
 	    	dim = ndx.dimension(function (d) { return d.dateObj; });
@@ -397,8 +397,8 @@ function calculateCharts(timeGrp){
 	        break;
 	    case "month":
 	    	dim = ndx.dimension(function (d) { return d.dateObj.getMonth(); });
-	    	lineChart1.x(d3.scale.linear().domain([0, 12]));
-	    	percentChart.x(d3.scale.linear().domain([0, 12]));
+	    	lineChart1.x(d3.scale.linear().domain([-1, 12]));
+	    	percentChart.x(d3.scale.linear().domain([-1, 12]));
 	        break;
 	    case "quater":
 	        dim = ndx.dimension(function (d) {
@@ -413,13 +413,13 @@ function calculateCharts(timeGrp){
 	                return 4;
 	            }
 	        });
-	        lineChart1.x(d3.scale.linear().domain([1,5]));
-	        percentChart.x(d3.scale.linear().domain([1,5]));
+	        lineChart1.x(d3.scale.linear().domain([0,5]));
+	        percentChart.x(d3.scale.linear().domain([0,5]));
 	        break;
 	    case "year":
 	    	dim = ndx.dimension(function (d) { return d.dateObj.getFullYear(); });
-	    	lineChart1.x(d3.scale.linear().domain([0, 4000]));
-	    	percentChart.x(d3.scale.linear().domain([0, 4000]));
+	    	lineChart1.x(d3.scale.linear().domain([  dim.bottom(1)[0].dateObj.getFullYear()-1, dim.top(1)[0].dateObj.getFullYear()+1]));
+	    	percentChart.x(d3.scale.linear().domain([  dim.bottom(1)[0].dateObj.getFullYear()-1, dim.top(1)[0].dateObj.getFullYear()+1]));
 	        break;
 
 	} ;
@@ -479,7 +479,7 @@ function calculateCharts(timeGrp){
 		}
 	);
 	
-
+	var gap = 20, translate = 25;
 	
 	lineChart1
 	.width(500).height(200)
@@ -515,14 +515,27 @@ function calculateCharts(timeGrp){
 	          dc.barChart(lineChart1).group(yrStatGroup,"Cat1")
 	          .valueAccessor(function (p) {
 	              return p.value.cat1Count;
-	          }),
+	          })
+	          .centerBar(true)
+	          .gap(gap)
+	          ,
 	          
 	          dc.barChart(lineChart1).group(yrStatGroup,"Cat2")
 	          .valueAccessor(function (p) {
 	              return p.value.cat2Count;
 	          })
-	          
-	          ]);
+		      .centerBar(true)
+	          .gap(gap)
+	          ])
+	          .on('renderlet', function (chart) {
+	        	  var barWidth = chart.select("g._5 rect").attr("width");
+	        	  var rightMove = barWidth/2;
+	        	  var leftMove = -barWidth/2;
+	        	  //var axisLength = chart.xAxisLength();
+	        	 chart.selectAll("g._4").attr("transform", "translate(" + leftMove + ", 0)"); 
+				chart.selectAll("g._5").attr("transform", "translate(" + rightMove + ", 0)");
+	          });
+			;
 	
 	
 	percentChart
