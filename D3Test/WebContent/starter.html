@@ -49,9 +49,9 @@
           </ul>
         </div>
         -->
-        <div class="col-sm-12 col-md-12 main jumbotron">
+        <div class="col-sm-12 col-md-12 main jumbotron" style = "padding-left: 0px; padding-right: 0px;">
           
-          	<div class = "container">
+          	<div class = "container" style="margin-left: 10px; margin-right:10px;">
           		<div class="row">
           		        <div class="col-sm-12 col-md-12">
           				<div class="btn-group" data-toggle="buttons">
@@ -73,44 +73,36 @@
 				</div>
 	        	<div class="row">
           			<div class="col-sm-6 col-md-6">
-          				<div class="panel panel-card">
           					<div class="panel-body" id="total_line_chart">
           					<!-- <svg id="trends_svg" width="100%" height="100%"></svg>  -->
+          					<h4>Count Chart</h4>
           					</div>
-          				</div>
           			</div>
 
           			<div class="col-sm-6 col-md-6">
-          				<div class="panel panel-card">
           					<div class="panel-body" id="percent_chart">
-          								<div class="reset" style="visibility: hidden;">
-											selected: <span class="filter"></span> <a
-												href="javascript:testRingChart.filterAll();dc.redrawAll();">reset</a>
-										</div>
-          					
           					<!-- <svg id="trends_svg" width="100%" height="100%"></svg>  -->
+          					<h4>Percent Chart</h4>
           					</div>
-          				</div>
+          					
           			</div>
 													
           		</div>
           		
           		<div class="row">
           			<div class="col-sm-6 col-md-6">
-          				<div class="panel panel-card">
           					<div class="panel-body" id="category_chart">
           								<div class="reset" style="visibility: hidden;">
 											selected: <span class="filter"></span> <a
 												href="javascript:testRingChart.filterAll();dc.redrawAll();">reset</a>
 										</div>
+										<h5>Categories</h5>
           					
           					<!-- <svg id="trends_svg" width="100%" height="100%"></svg>  -->
           					</div>
-          				</div>
           			</div>
           			
           			<div class="col-sm-6 col-md-6">
-          				<div class="panel panel-card">
           					<div class="panel-body" id="status_chart">
           								<div class="reset" style="visibility: hidden;">
 											selected: <span class="filter"></span> <a
@@ -119,7 +111,6 @@
           					
           					<!-- <svg id="trends_svg" width="100%" height="100%"></svg>  -->
           					</div>
-          				</div>
           			</div>
           			
           		</div>
@@ -128,20 +119,15 @@
  
 				<div class="row">
           			<div class="col-sm-12 col-md-12">
-          			<div class="panel panel-card">
+
 						<div class="panel-body" id="map_chart">
 						</div>
 					</div>
-          			</div>
-					
-          			
           		</div>
           		
           		
-          		<div class="row">
-          			<div class="col-sm-12 col-md-12">
-          				<div class="panel panel-card">
-          					
+          		<nav class="navbar navbar-fixed-bottom">
+          			<div class="col-sm-12 col-md-12 ">
           					<div class="panel-body" id="test_line_chart"><!-- 
 										<div class="reset" style="visibility: hidden;">
 											selected: <span class="filter"></span> <a
@@ -149,9 +135,8 @@
 										</div> -->
 										<!-- <svg id="trends_svg" width="100%" height="100%"></svg>  -->
           					</div>
-          				</div>
           			</div>
-          		</div>
+          		</nav>
           		
           		<!-- 
           		<div class="row">
@@ -283,7 +268,7 @@ d3.json("model/countries.geo.json", function(error, world){
 
 		
 		statusChart.width(500)
-	    .height(300)
+	    .height(200)
 	    //.margins({top: 20, left: 10, right: 10, bottom: 20})
 	    .group(statusTotal)
 	    .dimension(statusDim)
@@ -302,6 +287,7 @@ d3.json("model/countries.geo.json", function(error, world){
 		 .title(function (d) { return ""; })
 		 .controlsUseVisibility(true)
 		 //.renderLabel(false)
+		 .ordinalColors(['#0D861F','#3A59BF'])
 		 ;
 	       
 		
@@ -479,7 +465,7 @@ function calculateCharts(timeGrp){
 	
 	
 	lineChart1
-	.width(500).height(200)
+	.width(550).height(250)
 	.dimension(dim)
 	//.x(d3.time.scale().domain([d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)]))
 	.elasticY(true)
@@ -488,29 +474,6 @@ function calculateCharts(timeGrp){
 	//.xAxis().ticks(d3.time.months)
 	//.tickFormat(d3.time.format("%B"))
 	.compose([
-	          
-	          dc.lineChart(lineChart1).group(yrStatGroup,"Total")
-	          .valueAccessor(function (p) {
-	              return p.value.totalCount;
-	          })
-	          .dashStyle([3,1,1,1])
-	          .renderDataPoints({radius: 2, fillOpacity: 0.8, strokeOpacity: 0.8})
-	          ,
-	          
-	          dc.lineChart(lineChart1).group(yrStatGroup,"Processed")
-	          .valueAccessor(function (p) {
-	              return p.value.processedCount;
-	          }),
-	          
-	          dc.lineChart(lineChart1).group(yrStatGroup,"In-Repair")
-	          .valueAccessor(function (p) {
-	              return p.value.repairCount;
-	          }),
-	          
-	          dc.lineChart(lineChart1).group(yrStatGroup,"Failed")
-	          .valueAccessor(function (p) {
-	              return p.value.failureCount;
-	          }),
 	          
 	          dc.barChart(lineChart1).group(yrStatGroup,"Cat1")
 	          .valueAccessor(function (p) {
@@ -526,17 +489,46 @@ function calculateCharts(timeGrp){
 	          })
 		      .centerBar(true)
 		      .barPadding(2)
+		      ,				
+	          
+	          dc.lineChart(lineChart1).group(yrStatGroup,"Total")
+	          .valueAccessor(function (p) {
+	              return p.value.totalCount;
+	          })
+	          .renderDataPoints({radius: 2, fillOpacity: 0.8, strokeOpacity: 0.8})
+	          ,
+	          
+	          dc.lineChart(lineChart1).group(yrStatGroup,"Processed")
+	          .valueAccessor(function (p) {
+	              return p.value.processedCount;
+	          })
+	          .renderDataPoints({radius: 2, fillOpacity: 0.8, strokeOpacity: 0.8}),
+	          
+	          dc.lineChart(lineChart1).group(yrStatGroup,"In-Repair")
+	          .valueAccessor(function (p) {
+	              return p.value.repairCount;
+	          })
+	          .dashStyle([5,1])
+	          .renderDataPoints({radius: 2, fillOpacity: 0.8, strokeOpacity: 0.8}),
+	          
+	          dc.lineChart(lineChart1).group(yrStatGroup,"Failed")
+	          .valueAccessor(function (p) {
+	              return p.value.failureCount;
+	          })
+	          .dashStyle([5,0])
+	          .renderDataPoints({radius: 2, fillOpacity: 0.8, strokeOpacity: 0.8})
+	          
 	          ])
 	          .on('renderlet', function (chart) {
-	        	  var barWidth = chart.select("g._4 rect").attr("width");
+	        	  var barWidth = chart.select("g._0 rect").attr("width");
 	        	  var rightMove = barWidth/2;
 	        	  var leftMove = -barWidth/2;
 	        	  //var axisLength = chart.xAxisLength();
-	        	 chart.selectAll("g._4").attr("transform", "translate(" + leftMove + ", 0)"); 
-				chart.selectAll("g._5").attr("transform", "translate(" + rightMove + ", 0)");
+	        	 chart.selectAll("g._0").attr("transform", "translate(" + leftMove + ", 0)"); 
+				chart.selectAll("g._1").attr("transform", "translate(" + rightMove + ", 0)");
 	          })
 	          .legend(dc.legend().x(450).y(10).itemHeight(13).gap(5))
-	          .ordinalColors(['steelblue','green','blue','steelblue','black'])
+	          .ordinalColors(['#0D861F','#3A59BF','black','#32A243','steelblue','#C1091E'])
 	          .xAxisLabel('Time Group')
 	          .yAxisLabel('Count')
 	          .renderHorizontalGridLines(true)
@@ -545,57 +537,76 @@ function calculateCharts(timeGrp){
 	          ;
 	
 	
+	lineChart1.margins().right=100;
+	
 	percentChart
-	.width(500).height(200)
+	.width(550).height(250)
 	.dimension(dim)
 	//.x(d3.time.scale().domain([d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)]))
-	.elasticY(true)
+	//.elasticY(true)
 	//.elasticX(true)
 	.brushOn(false)
 	//.xAxis().ticks(d3.time.months)
 	//.tickFormat(d3.time.format("%B"))
 	.compose([
+	          
+	          
+				dc.barChart(percentChart).group(yrStatGroup,"Cat1%")
+				.valueAccessor(function (p) {
+				    return p.value.cat1Percent;
+				})
+				.centerBar(true)
+				.barPadding(2)
+				,
+				
+				dc.barChart(percentChart).group(yrStatGroup,"Cat2%")
+				.valueAccessor(function (p) {
+				    return p.value.cat2Percent;
+				})
+				.centerBar(true)
+				.barPadding(2)
+				,
+
 	          dc.lineChart(percentChart).group(yrStatGroup,"Processed%")
 	          .valueAccessor(function (p) {
 	              return p.value.processPercent;
-	          }),
+	          })
+	          .renderDataPoints({radius: 2, fillOpacity: 0.8, strokeOpacity: 0.8})
+	          ,
 	          
 	          dc.lineChart(percentChart).group(yrStatGroup,"In-Repair%")
 	          .valueAccessor(function (p) {
 	              return p.value.repairPercent;
-	          }),
+	          })
+	          .dashStyle([5,1])
+	          .renderDataPoints({radius: 2, fillOpacity: 0.8, strokeOpacity: 0.8})
+	          ,
 	          
 	          dc.lineChart(percentChart).group(yrStatGroup,"Failure%")
 	          .valueAccessor(function (p) {
 	              return p.value.failurePercent;
-	          }),
-	          
-	          dc.barChart(percentChart).group(yrStatGroup,"Cat1%")
-	          .valueAccessor(function (p) {
-	              return p.value.cat1Percent;
 	          })
-	          .centerBar(true)
-		      .barPadding(2)
-		      ,
-	          
-	          dc.barChart(percentChart).group(yrStatGroup,"Cat2%")
-	          .valueAccessor(function (p) {
-	              return p.value.cat2Percent;
-	          })
-	          .centerBar(true)
-		      .barPadding(2)
-	          
+	          .renderDataPoints({radius: 2, fillOpacity: 0.8, strokeOpacity: 0.8})
 	          
 	          ])
 	          .on('renderlet', function (chart) {
-	        	  var barWidth = chart.select("g._4 rect").attr("width");
+	        	  var barWidth = chart.select("g._0 rect").attr("width");
 	        	  var rightMove = barWidth/2;
 	        	  var leftMove = -barWidth/2;
 	        	  //var axisLength = chart.xAxisLength();
-	        	 chart.selectAll("g._3").attr("transform", "translate(" + leftMove + ", 0)"); 
-				chart.selectAll("g._4").attr("transform", "translate(" + rightMove + ", 0)");
+	        	 chart.selectAll("g._0").attr("transform", "translate(" + leftMove + ", 0)"); 
+				chart.selectAll("g._1").attr("transform", "translate(" + rightMove + ", 0)");
 	          })
+	          .legend(dc.legend().x(450).y(10).itemHeight(13).gap(5))
+	          .ordinalColors(['#0D861F','#3A59BF','#32A243','steelblue','#C1091E'])
+	          .xAxisLabel('Time Group')
+	          .yAxisLabel('Percent')
+	          .renderHorizontalGridLines(true)
+	          .renderVerticalGridLines(true)
+	          .shareColors(true)
 	          ;
+	
+	percentChart.margins().right=100;
 	
 }
 
