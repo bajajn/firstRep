@@ -22,6 +22,7 @@
           </button>
           <a class="navbar-brand" href="#">Data Analysis</a>
         </div>
+        <!-- 
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
             <li><a href="#">Dashboard</a></li>
@@ -33,6 +34,7 @@
             <input type="text" class="form-control" placeholder="Search...">
           </form>
         </div>
+         -->
       </div>
       </nav>
       
@@ -93,26 +95,22 @@
           			<div class="col-sm-3 col-md-3">
           					<div class="row">
 	          					<div class="panel-body" id="category_chart">
-	          					
-								  <div class="reset" style="visibility: hidden">
-												selected: <span class="filter"></span> <a
-													href="javascript:testRingChart.filterAll();dc.redrawAll();">reset</a>
-											</div>
-								
-	          								
 											<h4>Category Chart</h4>
+											<div class="reset filter_top" style="visibility: hidden">
+												<font color="teal" style="font-family: Verdana;">Selected:</font> <span class="filter"></span> <a
+													href="javascript:categoryChart.filterAll();dc.redrawAll();">Reset</a>
+											</div>
 	          					
 	          					<!-- <svg id="trends_svg" width="100%" height="100%"></svg>  -->
 	          					</div>
           					</div>
           					<div class = "row">
 	          					<div class="panel-body" id="status_chart">
-	          								<div class="reset" style="visibility: hidden;">
-												selected: <span class="filter"></span> <a
-													href="javascript:testRingChart.filterAll();dc.redrawAll();">reset</a>
-											</div>
 											<h4>Status Chart</h4>
-	          					
+	          								<div class="reset filter_top" style="visibility: hidden;">
+												<font color="teal" style="font-family: Verdana;">Selected:</font> <span class="filter"></span> <a
+													href="javascript:statusChart.filterAll();dc.redrawAll();">Reset</a>
+											</div>
 	          					<!-- <svg id="trends_svg" width="100%" height="100%"></svg>  -->
 	          					</div>
           					</div>
@@ -121,9 +119,68 @@
           			<div class="col-sm-9 col-md-9">
           				<div class="panel-body" id="map_chart">
           				<h4>Countries</h4>
+          				<div class="reset filter_top" style="visibility: hidden;">
+												<font color="teal" style="font-family: Verdana;">Selected:</font> <span class="filter"></span> <a
+													href="javascript:mapChart.filterAll();dc.redrawAll();">Reset</a>
+											</div>
 						</div>
           			</div>
           			
+          		</div>
+          		
+          		<div class="row">
+          			<div class="col-sm-12 col-md-12">
+          				<table id="data_table" class="table table-striped table-bordered table-hover">
+          					<thead>
+          					<tr>
+          						<th>
+          						#
+          						</th>
+          						<th>
+          						Count(Total)
+          						</th>
+          						<th>
+          						Count(Processed)
+          						</th>
+          						<th>
+          						%(Processed)
+          						</th>
+          						<th>
+          						Count(In-Repair)
+          						</th>
+          						<th>
+          						%(In-Repair)
+          						</th>
+          						<th>
+          						Count(Failed)
+          						</th>
+          						<th>
+          						%(Failed)
+          						</th>
+          						<th>
+          						Count(Cat1)
+          						</th>
+          						<th>
+          						%(Cat1)
+          						</th>
+          						<th>
+          						Count(Cat2)
+          						</th>
+          						<th>
+          						%(Cat2)
+          						</th>
+          						<th>
+          						Count(Cat3)
+          						</th>
+          						<th>
+          						%(Cat3)
+          						</th>
+          					</tr>
+          					</thead>
+          					<tbody>
+          					</tbody>
+          				</table>
+          			</div>
           		</div>
           		
 
@@ -133,32 +190,16 @@
           		
           		<nav class="navbar navbar-fixed-bottom">
           			<div class="col-sm-12 col-md-12 ">
-          					<div class="panel-body" id="test_line_chart"><!-- 
-										<div class="reset" style="visibility: hidden;">
-											selected: <span class="filter"></span> <a
-												href="javascript:lineChart_test.filterAll();dc.redrawAll();">reset</a>
-										</div> -->
-										<!-- <svg id="trends_svg" width="100%" height="100%"></svg>  -->
+          					<div class="panel-body" id="test_line_chart">
+          					<div class="reset" style="visibility: hidden; font-size: 10px">
+												Selected: <span class="filter"></span> <a
+													href="javascript:timeline.filterAll();dc.redrawAll();">Reset</a>
+							</div>
           					</div>
           			</div>
           		</nav>
           		
-          		<!-- 
-          		<div class="row">
-          			<div class="col-sm-9 col-md-10">
-          				<div class="panel panel-card">
-          					<div class="panel-title">
-          					Data Trend (%)
-          					</div>
-          					<div class="panel-body" id="data_table">
-          					</div>
-          				</div>
-          			</div>
-          			<div class="col-sm-3 col-md-2">
-          				def
-          			</div>
-          		</div>
-          		 -->
+
           		
           	</div>
 
@@ -238,8 +279,6 @@ d3.json("model/countries.geo.json", function(error, world){
 		
 		calculateCharts(timeGroup);
 		
-		var monthDim = ndx.dimension(function (d) { return d.monthDate; });
-		var monthDim1 = ndx.dimension(function (d) { return d.monthDate; });
 		var categoryDim = ndx.dimension(function (d) { return d.type; });
 		var statusDim = ndx.dimension(function (d) {return d.status;});
 		var countryDim = ndx.dimension(function(d){return d.country;});
@@ -270,6 +309,7 @@ d3.json("model/countries.geo.json", function(error, world){
 	    .elasticX(true)
 	    //.renderTitleLabel(true)
 	    //.ordinalColors([processedColour,inRepairColour, failureColour])
+	    .controlsUseVisibility(true)
 	    .colorCalculator(function(d){
 	    	var colorVal;
     		switch(d.key){
@@ -327,7 +367,8 @@ d3.json("model/countries.geo.json", function(error, world){
 	    .dimension(countryDim)
 	    .group(countryGrpCount) 
 	    .colors(d3.scale.category20())
-	    .title(function(v){console.log(v); return v.key+"\nTotal Count: "+v.value;})
+	    .controlsUseVisibility(true)
+	    .title(function(v){return v.key+"\nTotal Count: "+ (+v.value||0);})
 	    //.colors(d3.scale.ordinal().range(['blue','brown']))
 	    .projection(d3.geo.mercator())
 		    .overlayGeoJson(world.features, "state", function (d1) {
@@ -340,27 +381,15 @@ d3.json("model/countries.geo.json", function(error, world){
 		    
 		timeline
 		.width(700)
-		.height(50)
+		.height(80)
 		.dimension(dateDim)
 		.x(d3.time.scale().domain([d3.time.year.floor(dateDim.bottom(1)[0].dateObj), d3.time.year.ceil(dateDim.top(1)[0].dateObj)]))
 		.brushOn(true)
 		.controlsUseVisibility(true)
-		.group(timelineGrp,"Trades/Day");
+		.group(timelineGrp,"Trades/Day")
+		.xAxisLabel('Select time range')
+		;
 		timeline.yAxis().tickFormat(function(v){return '';});
-		
-		
-		var datatable   = dc.dataTable("#data_table");
-		datatable
-		    .dimension(monthDim)
-		    .group(function(d) {return d.type;})
-		    // dynamic columns creation using an array of closures
-		    .columns([
-		        function(d) { return d.dateObj; },
-		        function(d) {return d.status;},
-		        function(d) {return d.country;},
-		        function(d) {return d.type;},        
-		    ]);
-		
 		
 		dc.renderAll();
 		
@@ -377,10 +406,13 @@ d3.json("model/countries.geo.json", function(error, world){
 
 
 function calculateCharts(timeGrp){
+	var columnTags = '<td name="totalCount"></td><td name="processedCount"></td><td name="processedPercent"></td><td name="repairCount"></td>'+
+	'<td name="repairPercent"></td><td name="failedCount"></td><td name= "failedPercent"></td><td name="cat1Count"></td><td name="cat1Percent"></td>'+
+	'<td name="cat2Count"></td><td name="cat2Percent"></td><td name="cat3Count"></td><td name="cat3Percent"></td>';
 	var dim;
 	monthNameFormat = d3.time.format("%b");
 	
-	
+	$("#data_table tbody").html('');
 	switch(timeGrp) {
 	    case "day":
 	    	dim = ndx.dimension(function (d) { return d.dateObj; });
@@ -388,6 +420,7 @@ function calculateCharts(timeGrp){
 	    	lineChart1.xAxis().tickValues( d3.time.month.range(d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)),1);
 	    	lineChart1.xAxis().tickFormat(function(v){return monthNameFormat(v);});
 	    	
+	    	$("#data_table tbody").html('<tr><td colspan = "14">Disabled for selected time group</td></tr>');
 	    	
 	    	percentChart.x(d3.time.scale().domain([d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)]));
 	    	percentChart.xAxis().tickValues( d3.time.month.range(d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)),1);
@@ -395,7 +428,9 @@ function calculateCharts(timeGrp){
 	        break;
 	    case "month":
 	    	dim = ndx.dimension(function (d) { return d.dateObj.getMonth(); });
-	    	
+	    	for(idx = 0; idx<12 ; idx++){
+	    		$("#data_table tbody").append('<tr id="data_row_'+idx+'"><td>'+monthNameFormat(new Date(2001,idx,2))+'</td>'+columnTags+'</tr>');
+	    	}
 	    	lineChart1.x(d3.scale.linear().domain([-1, 12]));
 	    	lineChart1.xAxis().tickValues([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
 	    	lineChart1.xAxis().tickFormat(function(v){if(v>=0 && v<12) return monthNameFormat(new Date(2001,v,2)); else return '';});
@@ -417,6 +452,10 @@ function calculateCharts(timeGrp){
 	                return 4;
 	            }
 	        });
+	        
+	        for(idx = 1; idx<=4 ; idx++){
+	    		$("#data_table tbody").append('<tr id="data_row_'+idx+'"><td>Q'+idx+'</td>'+columnTags+'</tr>');
+	    	}
 	        lineChart1.x(d3.scale.linear().domain([0,5])).xAxis().tickFormat(function(v){if([1,2,3,4].includes(v)) return 'Q'+v; else return '';});
 	        lineChart1.xAxis().tickValues([0, 1, 2, 3, 4, 5]);
 	        
@@ -426,6 +465,10 @@ function calculateCharts(timeGrp){
 	        break;
 	    case "year":
 	    	dim = ndx.dimension(function (d) { return d.dateObj.getFullYear(); });
+	    	
+	    	for(idx = dim.bottom(1)[0].dateObj.getFullYear(); idx<=dim.top(1)[0].dateObj.getFullYear() ; idx++){
+	    		$("#data_table tbody").append('<tr id="data_row_'+idx+'"><td>'+idx+'</td>'+columnTags+'</tr>');
+	    	}
 	    	lineChart1.x(d3.scale.linear().domain([  dim.bottom(1)[0].dateObj.getFullYear()-1, dim.top(1)[0].dateObj.getFullYear()+1]))
 	    	.xAxis().tickFormat(function(v){if(Number.isInteger(v)) return v; else return '';});
 	    	lineChart1.xAxis().tickValues([dim.bottom(1)[0].dateObj.getFullYear()-1, dim.bottom(1)[0].dateObj.getFullYear(), dim.bottom(1)[0].dateObj.getFullYear()+1]);
@@ -449,12 +492,12 @@ function calculateCharts(timeGrp){
 			if(v.type == "cat3") p.cat3Count++;
 			
 			if(p.totalCount>0){
-				p.processPercent = (p.processedCount/p.totalCount)*100;
-				p.failurePercent = (p.failureCount/p.totalCount)*100;
-				p.repairPercent = (p.repairCount/p.totalCount)*100;
-				p.cat1Percent = (p.cat1Count/p.totalCount)*100;
-				p.cat2Percent = (p.cat2Count/p.totalCount)*100;
-				p.cat3Percent = (p.cat3Count/p.totalCount)*100;
+				p.processPercent = d3.format(".2f")((p.processedCount/p.totalCount)*100);
+				p.failurePercent = d3.format(".2f")((p.failureCount/p.totalCount)*100);
+				p.repairPercent = d3.format(".2f")((p.repairCount/p.totalCount)*100);
+				p.cat1Percent = d3.format(".2f")((p.cat1Count/p.totalCount)*100);
+				p.cat2Percent = d3.format(".2f")((p.cat2Count/p.totalCount)*100);
+				p.cat3Percent = d3.format(".2f")((p.cat3Count/p.totalCount)*100);
 			} else {
 				p.processPercent = 0;
 				p.failurePercent = 0;
@@ -477,12 +520,12 @@ function calculateCharts(timeGrp){
 			if(v.type == "cat3") p.cat3Count--;
 			
 			if(p.totalCount > 0){
-				p.processPercent = (p.processedCount/p.totalCount)*100;
-				p.failurePercent = (p.failureCount/p.totalCount)*100;
-				p.repairPercent = (p.repairCount/p.totalCount)*100;
-				p.cat1Percent = (p.cat1Count/p.totalCount)*100;
-				p.cat2Percent = (p.cat2Count/p.totalCount)*100;
-				p.cat3Percent = (p.cat3Count/p.totalCount)*100;
+				p.processPercent = d3.format(".2f")((p.processedCount/p.totalCount)*100);
+				p.failurePercent = d3.format(".2f")((p.failureCount/p.totalCount)*100);
+				p.repairPercent = d3.format(".2f")((p.repairCount/p.totalCount)*100);
+				p.cat1Percent = d3.format(".2f")((p.cat1Count/p.totalCount)*100);
+				p.cat2Percent = d3.format(".2f")((p.cat2Count/p.totalCount)*100);
+				p.cat3Percent = d3.format(".2f")((p.cat3Count/p.totalCount)*100);
 			}else {
 				p.processPercent = 0;
 				p.failurePercent = 0;
@@ -537,7 +580,7 @@ function calculateCharts(timeGrp){
 	          })
 	          .centerBar(true)
 	          .barPadding(3)
-	          .title(function(v){return "Category1: "+v.value.cat1Count;})
+	          .title(function(v){if(timeGrp != 'day')   $('#data_row_'+v.key+' td[name="cat1Count"] ').text(v.value.cat1Count)  ;return "Category1: "+v.value.cat1Count;})
 	          ,
 	          
 	          dc.barChart(lineChart1).group(yrStatGroup,"Cat2")
@@ -546,15 +589,16 @@ function calculateCharts(timeGrp){
 	          })
 		      .centerBar(true)
 		      .barPadding(3)
-		      .title(function(v){return "Category2: "+v.value.cat2Count;})
+		      .title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="cat2Count"] ').text(v.value.cat2Count)  ;return "Category2: "+v.value.cat2Count;})
 		      ,		
+		      
 		      dc.barChart(lineChart1).group(yrStatGroup,"Cat3")
 	          .valueAccessor(function (p) {
 	              return p.value.cat3Count;
 	          })
 		      .centerBar(true)
 		      .barPadding(3)
-		      .title(function(v){return "Category3: "+v.value.cat3Count;})
+		      .title(function(v){ if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="cat3Count"] ').text(v.value.cat3Count)  ;return "Category3: "+v.value.cat3Count;})
 		      ,		
 	          
 	          dc.lineChart(lineChart1).group(yrStatGroup,"Total")
@@ -562,7 +606,7 @@ function calculateCharts(timeGrp){
 	              return p.value.totalCount;
 	          })
 	          .renderDataPoints({radius: 2, fillOpacity: 0.8, strokeOpacity: 0.8})
-	          .title(function(v){return "Total: "+v.value.totalCount;})
+	          .title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="totalCount"] ').text(v.value.totalCount)  ;return "Total: "+v.value.totalCount;})
 	          ,
 	          
 	          dc.lineChart(lineChart1).group(yrStatGroup,"Processed")
@@ -570,7 +614,7 @@ function calculateCharts(timeGrp){
 	              return p.value.processedCount;
 	          })
 	          .renderDataPoints({radius: 2, fillOpacity: 0.8, strokeOpacity: 0.8})
-	          .title(function(v){return "Processed: "+v.value.processedCount;})
+	          .title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="processedCount"] ').text(v.value.processedCount); return "Processed: "+v.value.processedCount;})
 	          ,
 	          
 	          dc.lineChart(lineChart1).group(yrStatGroup,"In-Repair")
@@ -579,7 +623,7 @@ function calculateCharts(timeGrp){
 	          })
 	          .dashStyle([5,1])
 	          .renderDataPoints({radius: 2, fillOpacity: 0.8, strokeOpacity: 0.8})
-	          .title(function(v){return "In-Repair: "+v.value.repairCount;})
+	          .title(function(v){if(timeGrp != 'day')  $('#data_row_'+v.key+' td[name="repairCount"] ').text(v.value.repairCount); return "In-Repair: "+v.value.repairCount;})
 	          ,
 	          
 	          dc.lineChart(lineChart1).group(yrStatGroup,"Failed")
@@ -588,7 +632,7 @@ function calculateCharts(timeGrp){
 	          })
 	          .dashStyle([5,0])
 	          .renderDataPoints({radius: 2, fillOpacity: 0.8, strokeOpacity: 0.8})
-	          .title(function(v){return "Failed: "+v.value.failureCount;})
+	          .title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="failedCount"] ').text(v.value.failureCount); return "Failed: "+v.value.failureCount;})
 	          ])
 			  .on('renderlet', function (chart) {
 	        	  var barWidth = chart.select("g.sub._0 rect").attr("width");
@@ -615,6 +659,7 @@ function calculateCharts(timeGrp){
 	.dimension(dim)
 	//.x(d3.time.scale().domain([d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)]))
 	//.elasticY(true)
+	.y(d3.scale.linear().domain([0, 100]))
 	//.elasticX(true)
 	.brushOn(false)
 	.shareTitle(false)
@@ -629,7 +674,7 @@ function calculateCharts(timeGrp){
 				})
 				.centerBar(true)
 				.barPadding(3)
-				.title(function(v){return "Category1: "+v.value.cat1Percent+"%";})
+				.title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="cat1Percent"] ').text(v.value.cat1Percent+"%"); return "Category1: "+v.value.cat1Percent+"%";})
 				,
 				
 				dc.barChart(percentChart).group(yrStatGroup,"Cat2%")
@@ -638,7 +683,7 @@ function calculateCharts(timeGrp){
 				})
 				.centerBar(true)
 				.barPadding(3)
-				.title(function(v){return "Category2: "+v.value.cat2Percent+"%";})
+				.title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="cat2Percent"] ').text(v.value.cat2Percent+"%"); return "Category2: "+v.value.cat2Percent+"%";})
 				,
 				
 				dc.barChart(percentChart).group(yrStatGroup,"Cat3%")
@@ -647,7 +692,7 @@ function calculateCharts(timeGrp){
 				})
 				.centerBar(true)
 				.barPadding(3)
-				.title(function(v){return "Category3: "+v.value.cat3Percent+"%";})
+				.title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="cat3Percent"] ').text(v.value.cat3Percent+"%"); return "Category3: "+v.value.cat3Percent+"%";})
 				,
 
 	          dc.lineChart(percentChart).group(yrStatGroup,"Processed%")
@@ -655,7 +700,7 @@ function calculateCharts(timeGrp){
 	              return p.value.processPercent;
 	          })
 	          .renderDataPoints({radius: 2, fillOpacity: 0.8, strokeOpacity: 0.8})
-	          .title(function(v){return "Processed: "+v.value.processPercent+"%";})
+	          .title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="processedPercent"] ').text(v.value.processPercent+"%"); return "Processed: "+v.value.processPercent+"%";})
 	          ,
 	          
 	          dc.lineChart(percentChart).group(yrStatGroup,"In-Repair%")
@@ -664,7 +709,7 @@ function calculateCharts(timeGrp){
 	          })
 	          .dashStyle([5,1])
 	          .renderDataPoints({radius: 2, fillOpacity: 0.8, strokeOpacity: 0.8})
-	          .title(function(v){return "In-Repair: "+v.value.repairPercent+"%";})
+	          .title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="repairPercent"] ').text(v.value.repairPercent+"%"); return "In-Repair: "+v.value.repairPercent+"%";})
 	          ,
 	          
 	          dc.lineChart(percentChart).group(yrStatGroup,"Failure%")
@@ -672,7 +717,7 @@ function calculateCharts(timeGrp){
 	              return p.value.failurePercent;
 	          })
 	          .renderDataPoints({radius: 2, fillOpacity: 0.8, strokeOpacity: 0.8})
-	          .title(function(v){return "Failed: "+v.value.failurePercent+"%";})
+	          .title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="failedPercent"] ').text(v.value.failurePercent+"%"); return "Failed: "+v.value.failurePercent+"%";})
 	          ])
 	          .on('renderlet', function (chart) {
 	        	  var barWidth = chart.select("g.sub._0 rect").attr("width");
