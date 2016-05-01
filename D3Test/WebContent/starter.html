@@ -269,8 +269,10 @@ d3.json("model/countries.geo.json", function(error, world){
 		
 		rows.forEach(function(d) {
 			d.dateObj = parseDate(d.date)
-			d.monthDate = d3.time.month.floor(d.dateObj);
-			d.yearDate=d3.time.year.floor(d.dateObj);
+			d.month = d.dateObj.getMonth();
+			d.quarter = Math.ceil(d.month+1)/4;
+			d.year = d.dateObj.getFullYear();
+			
 		});
 		
 		ndx = crossfilter(rows);
@@ -427,7 +429,7 @@ function calculateCharts(timeGrp){
 	    	percentChart.xAxis().tickFormat(function(v){return monthNameFormat(v);});
 	        break;
 	    case "month":
-	    	dim = ndx.dimension(function (d) { return d.dateObj.getMonth(); });
+	    	dim = ndx.dimension(function (d) { return d.month; });
 	    	for(idx = 0; idx<12 ; idx++){
 	    		$("#data_table tbody").append('<tr id="data_row_'+idx+'"><td>'+monthNameFormat(new Date(2001,idx,2))+'</td>'+columnTags+'</tr>');
 	    	}
@@ -440,18 +442,7 @@ function calculateCharts(timeGrp){
 	        break;
 	    case "quater":
 	    	
-	        dim = ndx.dimension(function (d) {
-	            var month = d.dateObj.getMonth();
-	            if (month <= 2) {
-	                return 1;
-	            } else if (month > 2 && month <= 5) {
-	                return 2;
-	            } else if (month > 5 && month <= 8) {
-	                return 3;
-	            } else {
-	                return 4;
-	            }
-	        });
+	        dim = ndx.dimension(function (d) {d.quarter;});
 	        
 	        for(idx = 1; idx<=4 ; idx++){
 	    		$("#data_table tbody").append('<tr id="data_row_'+idx+'"><td>Q'+idx+'</td>'+columnTags+'</tr>');
@@ -464,7 +455,7 @@ function calculateCharts(timeGrp){
 	        
 	        break;
 	    case "year":
-	    	dim = ndx.dimension(function (d) { return d.dateObj.getFullYear(); });
+	    	dim = ndx.dimension(function (d) { return d.year; });
 	    	
 	    	for(idx = dim.bottom(1)[0].dateObj.getFullYear(); idx<=dim.top(1)[0].dateObj.getFullYear() ; idx++){
 	    		$("#data_table tbody").append('<tr id="data_row_'+idx+'"><td>'+idx+'</td>'+columnTags+'</tr>');
