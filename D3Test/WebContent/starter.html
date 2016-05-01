@@ -211,7 +211,7 @@
 <script src="js/jquery-2.2.2.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/d3.min.js"></script>
-<script src="js/d3-tip/index.js"></script>
+<!-- <script src="js/d3-tip/index.js"></script> -->
 <script src="js/crossfilter.min.js"></script>
 <script src="js/dc.min.js"></script>
 <script>
@@ -264,7 +264,7 @@ d3.json("model/countries.geo.json", function(error, world){
 
 	
 	d3.json("model/data.json", function(error, dataValues) {
-		
+		console.log(error);
 		rows=dataValues.data;
 		
 		rows.forEach(function(d) {
