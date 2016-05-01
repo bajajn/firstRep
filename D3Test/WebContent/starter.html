@@ -190,7 +190,7 @@
           		
           		<nav class="navbar navbar-fixed-bottom">
           			<div class="col-sm-12 col-md-12 ">
-          					<div class="panel-body" id="test_line_chart">
+          					<div class="panel-body" id="time_line">
           					<div class="reset" style="visibility: hidden; font-size: 10px">
 												Selected: <span class="filter"></span> <a
 													href="javascript:timeline.filterAll();dc.redrawAll();">Reset</a>
@@ -234,7 +234,7 @@ $(document).ready(function(){
 	$("input[name=options]").change(function(){
 		timeGroup = $("input[name=options]:checked").val();
 		calculateCharts(timeGroup);
-		lineChart1.render();
+		totalChart.render();
 		percentChart.render();
 	})
 })
@@ -244,11 +244,11 @@ $(document).ready(function(){
 var rows={};
 var ndx;
 
-var lineChart1 = dc.compositeChart("#total_line_chart");
+var totalChart = dc.compositeChart("#total_line_chart");
 var percentChart = dc.compositeChart("#percent_chart");
 var categoryChart = dc.pieChart("#category_chart");
 var statusChart = dc.rowChart("#status_chart");
-var timeline = dc.barChart("#test_line_chart");
+var timeline = dc.barChart("#time_line");
 var mapChart =  dc.geoChoroplethChart("#map_chart");
 
 
@@ -334,9 +334,9 @@ d3.json("model/countries.geo.json", function(error, world){
 		 .innerRadius(50)
 		 .label(
 	    		function(v){
-	    			if (v.key == "cat1") return "Category 1";
-	    			if (v.key == "cat2") return "Category 2";
-	    			if (v.key == "cat3") return "Category 3";
+	    			if (v.key == "C") return "Category 1";
+	    			if (v.key == "F") return "Category 2";
+	    			if (v.key == "C&F") return "Category 3";
 	    			})
 		 .renderLabel(true)
 		 .title(function (v) { return "Count: "+v.value; })
@@ -345,13 +345,13 @@ d3.json("model/countries.geo.json", function(error, world){
 		 .colorCalculator(function(d){
 	    	var colorVal;
     		switch(d.key){
-    			case "cat1":
+    			case "C":
     				colorVal = cat1Colour;
     				break;
-    			case "cat2":
+    			case "F":
     				colorVal = cat2Colour;
     				break;
-    			case "cat3":
+    			case "C&F":
     				colorVal = cat3Colour;
     				break;
     			
@@ -407,8 +407,8 @@ d3.json("model/countries.geo.json", function(error, world){
 
 function calculateCharts(timeGrp){
 	var columnTags = '<td name="totalCount"></td><td name="processedCount"></td><td name="processedPercent"></td><td name="repairCount"></td>'+
-	'<td name="repairPercent"></td><td name="failedCount"></td><td name= "failedPercent"></td><td name="cat1Count"></td><td name="cat1Percent"></td>'+
-	'<td name="cat2Count"></td><td name="cat2Percent"></td><td name="cat3Count"></td><td name="cat3Percent"></td>';
+	'<td name="repairPercent"></td><td name="failedCount"></td><td name= "failedPercent"></td><td name="cCount"></td><td name="cPercent"></td>'+
+	'<td name="fCount"></td><td name="fPercent"></td><td name="cfCount"></td><td name="cfPercent"></td>';
 	var dim;
 	monthNameFormat = d3.time.format("%b");
 	
@@ -416,9 +416,9 @@ function calculateCharts(timeGrp){
 	switch(timeGrp) {
 	    case "day":
 	    	dim = ndx.dimension(function (d) { return d.dateObj; });
-	    	lineChart1.x(d3.time.scale().domain([d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)]));
-	    	lineChart1.xAxis().tickValues( d3.time.month.range(d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)),1);
-	    	lineChart1.xAxis().tickFormat(function(v){return monthNameFormat(v);});
+	    	totalChart.x(d3.time.scale().domain([d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)]));
+	    	totalChart.xAxis().tickValues( d3.time.month.range(d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)),1);
+	    	totalChart.xAxis().tickFormat(function(v){return monthNameFormat(v);});
 	    	
 	    	$("#data_table tbody").html('<tr><td colspan = "14">Disabled for selected time group</td></tr>');
 	    	
@@ -431,9 +431,9 @@ function calculateCharts(timeGrp){
 	    	for(idx = 0; idx<12 ; idx++){
 	    		$("#data_table tbody").append('<tr id="data_row_'+idx+'"><td>'+monthNameFormat(new Date(2001,idx,2))+'</td>'+columnTags+'</tr>');
 	    	}
-	    	lineChart1.x(d3.scale.linear().domain([-1, 12]));
-	    	lineChart1.xAxis().tickValues([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
-	    	lineChart1.xAxis().tickFormat(function(v){if(v>=0 && v<12) return monthNameFormat(new Date(2001,v,2)); else return '';});
+	    	totalChart.x(d3.scale.linear().domain([-1, 12]));
+	    	totalChart.xAxis().tickValues([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+	    	totalChart.xAxis().tickFormat(function(v){if(v>=0 && v<12) return monthNameFormat(new Date(2001,v,2)); else return '';});
 			percentChart.x(d3.scale.linear().domain([-1, 12]));
 			percentChart.xAxis().tickValues([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
 			percentChart.xAxis().tickFormat(function(v){ if(v>=0 && v<12) return monthNameFormat(new Date(2001,v,2)); else return '';});
@@ -456,8 +456,8 @@ function calculateCharts(timeGrp){
 	        for(idx = 1; idx<=4 ; idx++){
 	    		$("#data_table tbody").append('<tr id="data_row_'+idx+'"><td>Q'+idx+'</td>'+columnTags+'</tr>');
 	    	}
-	        lineChart1.x(d3.scale.linear().domain([0,5])).xAxis().tickFormat(function(v){if([1,2,3,4].includes(v)) return 'Q'+v; else return '';});
-	        lineChart1.xAxis().tickValues([0, 1, 2, 3, 4, 5]);
+	        totalChart.x(d3.scale.linear().domain([0,5])).xAxis().tickFormat(function(v){if([1,2,3,4].includes(v)) return 'Q'+v; else return '';});
+	        totalChart.xAxis().tickValues([0, 1, 2, 3, 4, 5]);
 	        
 	        percentChart.x(d3.scale.linear().domain([0,5])).xAxis().tickFormat(function(v){if([1,2,3,4].includes(v)) return 'Q'+v; else return '';});
 	        percentChart.xAxis().tickValues([0, 1, 2, 3, 4, 5]);
@@ -469,9 +469,9 @@ function calculateCharts(timeGrp){
 	    	for(idx = dim.bottom(1)[0].dateObj.getFullYear(); idx<=dim.top(1)[0].dateObj.getFullYear() ; idx++){
 	    		$("#data_table tbody").append('<tr id="data_row_'+idx+'"><td>'+idx+'</td>'+columnTags+'</tr>');
 	    	}
-	    	lineChart1.x(d3.scale.linear().domain([  dim.bottom(1)[0].dateObj.getFullYear()-1, dim.top(1)[0].dateObj.getFullYear()+1]))
+	    	totalChart.x(d3.scale.linear().domain([  dim.bottom(1)[0].dateObj.getFullYear()-1, dim.top(1)[0].dateObj.getFullYear()+1]))
 	    	.xAxis().tickFormat(function(v){if(Number.isInteger(v)) return v; else return '';});
-	    	lineChart1.xAxis().tickValues([dim.bottom(1)[0].dateObj.getFullYear()-1, dim.bottom(1)[0].dateObj.getFullYear(), dim.bottom(1)[0].dateObj.getFullYear()+1]);
+	    	totalChart.xAxis().tickValues([dim.bottom(1)[0].dateObj.getFullYear()-1, dim.bottom(1)[0].dateObj.getFullYear(), dim.bottom(1)[0].dateObj.getFullYear()+1]);
 	    	
 	    	
 	    	percentChart.x(d3.scale.linear().domain([  dim.bottom(1)[0].dateObj.getFullYear()-1, dim.top(1)[0].dateObj.getFullYear()+1]))
@@ -487,9 +487,9 @@ function calculateCharts(timeGrp){
 			if(v.status == "processed") p.processedCount++;
 			if(v.status == "in-repair") p.repairCount++;
 			if(v.status == "failure") p.failureCount++;
-			if(v.type == "cat1") p.cat1Count++;
-			if(v.type == "cat2") p.cat2Count++;
-			if(v.type == "cat3") p.cat3Count++;
+			if(v.type == "C") p.cat1Count++;
+			if(v.type == "F") p.cat2Count++;
+			if(v.type == "C&F") p.cat3Count++;
 			
 			if(p.totalCount>0){
 				p.processPercent = d3.format(".2f")((p.processedCount/p.totalCount)*100);
@@ -515,9 +515,9 @@ function calculateCharts(timeGrp){
 			if(v.status == "processed") p.processedCount--;
 			if(v.status == "in-repair") p.repairCount--;
 			if(v.status == "failure") p.failureCount--;
-			if(v.type == "cat1") p.cat1Count--;
-			if(v.type == "cat2") p.cat2Count--;
-			if(v.type == "cat3") p.cat3Count--;
+			if(v.type == "C") p.cat1Count--;
+			if(v.type == "F") p.cat2Count--;
+			if(v.type == "C&F") p.cat3Count--;
 			
 			if(p.totalCount > 0){
 				p.processPercent = d3.format(".2f")((p.processedCount/p.totalCount)*100);
@@ -562,7 +562,7 @@ function calculateCharts(timeGrp){
 	
 	
 	
-	lineChart1
+	totalChart
 	.width(550).height(250)
 	.dimension(dim)
 	//.x(d3.time.scale().domain([d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)]))
@@ -574,34 +574,34 @@ function calculateCharts(timeGrp){
 	//.tickFormat(d3.time.format("%B"))
 	.compose([
 	          
-	          dc.barChart(lineChart1).group(yrStatGroup,"Cat1")
+	          dc.barChart(totalChart).group(yrStatGroup,"Cat1")
 	          .valueAccessor(function (p) {
 	              return p.value.cat1Count;
 	          })
 	          .centerBar(true)
 	          .barPadding(3)
-	          .title(function(v){if(timeGrp != 'day')   $('#data_row_'+v.key+' td[name="cat1Count"] ').text(v.value.cat1Count)  ;return "Category1: "+v.value.cat1Count;})
+	          .title(function(v){if(timeGrp != 'day')   $('#data_row_'+v.key+' td[name="cCount"] ').text(v.value.cat1Count)  ;return "Category1: "+v.value.cat1Count;})
 	          ,
 	          
-	          dc.barChart(lineChart1).group(yrStatGroup,"Cat2")
+	          dc.barChart(totalChart).group(yrStatGroup,"Cat2")
 	          .valueAccessor(function (p) {
 	              return p.value.cat2Count;
 	          })
 		      .centerBar(true)
 		      .barPadding(3)
-		      .title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="cat2Count"] ').text(v.value.cat2Count)  ;return "Category2: "+v.value.cat2Count;})
+		      .title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="fCount"] ').text(v.value.cat2Count)  ;return "Category2: "+v.value.cat2Count;})
 		      ,		
 		      
-		      dc.barChart(lineChart1).group(yrStatGroup,"Cat3")
+		      dc.barChart(totalChart).group(yrStatGroup,"Cat3")
 	          .valueAccessor(function (p) {
 	              return p.value.cat3Count;
 	          })
 		      .centerBar(true)
 		      .barPadding(3)
-		      .title(function(v){ if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="cat3Count"] ').text(v.value.cat3Count)  ;return "Category3: "+v.value.cat3Count;})
+		      .title(function(v){ if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="cfCount"] ').text(v.value.cat3Count)  ;return "Category3: "+v.value.cat3Count;})
 		      ,		
 	          
-	          dc.lineChart(lineChart1).group(yrStatGroup,"Total")
+	          dc.lineChart(totalChart).group(yrStatGroup,"Total")
 	          .valueAccessor(function (p) {
 	              return p.value.totalCount;
 	          })
@@ -609,7 +609,7 @@ function calculateCharts(timeGrp){
 	          .title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="totalCount"] ').text(v.value.totalCount)  ;return "Total: "+v.value.totalCount;})
 	          ,
 	          
-	          dc.lineChart(lineChart1).group(yrStatGroup,"Processed")
+	          dc.lineChart(totalChart).group(yrStatGroup,"Processed")
 	          .valueAccessor(function (p) {
 	              return p.value.processedCount;
 	          })
@@ -617,7 +617,7 @@ function calculateCharts(timeGrp){
 	          .title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="processedCount"] ').text(v.value.processedCount); return "Processed: "+v.value.processedCount;})
 	          ,
 	          
-	          dc.lineChart(lineChart1).group(yrStatGroup,"In-Repair")
+	          dc.lineChart(totalChart).group(yrStatGroup,"In-Repair")
 	          .valueAccessor(function (p) {
 	              return p.value.repairCount;
 	          })
@@ -626,7 +626,7 @@ function calculateCharts(timeGrp){
 	          .title(function(v){if(timeGrp != 'day')  $('#data_row_'+v.key+' td[name="repairCount"] ').text(v.value.repairCount); return "In-Repair: "+v.value.repairCount;})
 	          ,
 	          
-	          dc.lineChart(lineChart1).group(yrStatGroup,"Failed")
+	          dc.lineChart(totalChart).group(yrStatGroup,"Failed")
 	          .valueAccessor(function (p) {
 	              return p.value.failureCount;
 	          })
@@ -652,7 +652,7 @@ function calculateCharts(timeGrp){
 	          ;
 	
 	
-	lineChart1.margins().right=100;
+	totalChart.margins().right=100;
 	
 	percentChart
 	.width(550).height(250)
@@ -674,7 +674,7 @@ function calculateCharts(timeGrp){
 				})
 				.centerBar(true)
 				.barPadding(3)
-				.title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="cat1Percent"] ').text(v.value.cat1Percent+"%"); return "Category1: "+v.value.cat1Percent+"%";})
+				.title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="cPercent"] ').text(v.value.cat1Percent+"%"); return "Category1: "+v.value.cat1Percent+"%";})
 				,
 				
 				dc.barChart(percentChart).group(yrStatGroup,"Cat2%")
@@ -683,7 +683,7 @@ function calculateCharts(timeGrp){
 				})
 				.centerBar(true)
 				.barPadding(3)
-				.title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="cat2Percent"] ').text(v.value.cat2Percent+"%"); return "Category2: "+v.value.cat2Percent+"%";})
+				.title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="fPercent"] ').text(v.value.cat2Percent+"%"); return "Category2: "+v.value.cat2Percent+"%";})
 				,
 				
 				dc.barChart(percentChart).group(yrStatGroup,"Cat3%")
@@ -692,7 +692,7 @@ function calculateCharts(timeGrp){
 				})
 				.centerBar(true)
 				.barPadding(3)
-				.title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="cat3Percent"] ').text(v.value.cat3Percent+"%"); return "Category3: "+v.value.cat3Percent+"%";})
+				.title(function(v){if(timeGrp != 'day') $('#data_row_'+v.key+' td[name="cfPercent"] ').text(v.value.cat3Percent+"%"); return "Category3: "+v.value.cat3Percent+"%";})
 				,
 
 	          dc.lineChart(percentChart).group(yrStatGroup,"Processed%")
