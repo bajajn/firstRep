@@ -241,7 +241,7 @@ $(document).ready(function(){
 
 
 
-var rows={};
+
 var ndx;
 
 var totalChart = dc.compositeChart("#total_line_chart");
@@ -260,39 +260,153 @@ var processedColour = '#32A243';
 var inRepairColour = 'steelblue';
 var failureColour = '#C1091E';
 
+var date_idx = 0;
+var status_idx = 1;
+var country_idx = 2;
+var category_idx = 3;
+var month_idx = 4;
+var qtr_idx = 5;
+var year_idx = 6;
+
+var dateDim = {};
+var monthDim = {};
+var qtrDim = {};
+var yearDim = {};
+
+var dateGrp = {};
+var monthGrp = {};
+var qtrGrp = {};
+var yearGrp = {};
+
+
+
+function createDimGroup(dim){
+	
+	var grp = dim.group().reduce(
+			function (p,v){
+				p.totalCount++;
+				if(v[status_idx] == "processed") p.processedCount++;
+				if(v[status_idx] == "in-repair") p.repairCount++;
+				if(v[status_idx] == "failure") p.failureCount++;
+				if(v[category_idx] == "C") p.cat1Count++;
+				if(v[category_idx] == "F") p.cat2Count++;
+				if(v[category_idx] == "C&F") p.cat3Count++;
+				
+				if(p.totalCount>0){
+					p.processPercent = d3.format(".2f")((p.processedCount/p.totalCount)*100);
+					p.failurePercent = d3.format(".2f")((p.failureCount/p.totalCount)*100);
+					p.repairPercent = d3.format(".2f")((p.repairCount/p.totalCount)*100);
+					p.cat1Percent = d3.format(".2f")((p.cat1Count/p.totalCount)*100);
+					p.cat2Percent = d3.format(".2f")((p.cat2Count/p.totalCount)*100);
+					p.cat3Percent = d3.format(".2f")((p.cat3Count/p.totalCount)*100);
+				} else {
+					p.processPercent = 0;
+					p.failurePercent = 0;
+					p.repairPercent = 0;
+					p.cat1Percent = 0;
+					p.cat2Percent = 0;
+					p.cat3Percent = 0;
+				}
+				
+				return p;
+			},
+			
+			function (p,v){
+				p.totalCount--;
+				if(v[status_idx] == "processed") p.processedCount--;
+				if(v[status_idx] == "in-repair") p.repairCount--;
+				if(v[status_idx] == "failure") p.failureCount--;
+				if(v[category_idx] == "C") p.cat1Count--;
+				if(v[category_idx] == "F") p.cat2Count--;
+				if(v[category_idx] == "C&F") p.cat3Count--;
+				
+				if(p.totalCount > 0){
+					p.processPercent = d3.format(".2f")((p.processedCount/p.totalCount)*100);
+					p.failurePercent = d3.format(".2f")((p.failureCount/p.totalCount)*100);
+					p.repairPercent = d3.format(".2f")((p.repairCount/p.totalCount)*100);
+					p.cat1Percent = d3.format(".2f")((p.cat1Count/p.totalCount)*100);
+					p.cat2Percent = d3.format(".2f")((p.cat2Count/p.totalCount)*100);
+					p.cat3Percent = d3.format(".2f")((p.cat3Count/p.totalCount)*100);
+				}else {
+					p.processPercent = 0;
+					p.failurePercent = 0;
+					p.repairPercent = 0;
+					p.cat1Percent = 0;
+					p.cat2Percent = 0;
+					p.cat3Percent = 0;
+				}
+				
+				
+				
+				return p;
+			},
+			
+			function (){
+				return {
+					totalCount: 0,
+					processedCount: 0,
+					failureCount: 0,
+					repairCount: 0,
+					cat1Count: 0,
+					cat2Count: 0,
+					cat3Count: 0,
+					processPercent: 0,
+					failurePercent: 0,
+					repairPercent: 0,
+					cat1Percent: 0,
+					cat2Percent: 0,
+					cat3Percent: 0
+	            };
+				
+			}
+		);
+		
+		return grp;
+	
+}
+
 d3.json("model/countries.geo.json", function(error, world){
 
 	
-	d3.json("model/data.json", function(error, dataValues) {
-		console.log(error);
+	d3.json("model/data_30k.json", function(error, dataValues) {
 		rows=dataValues.data;
 		
 		rows.forEach(function(d) {
-			d.dateObj = parseDate(d.date)
-			d.month = d.dateObj.getMonth();
-			d.quarter = Math.ceil(d.month+1)/4;
-			d.year = d.dateObj.getFullYear();
+			d[date_idx]= parseDate(d[date_idx])
+			d[month_idx] = d[date_idx].getMonth();
+			d[qtr_idx] = Math.ceil((d[month_idx]+1)/3);
+			d[year_idx] = d[date_idx].getFullYear();
 			
 		});
 		
 		ndx = crossfilter(rows);
-		var all = ndx.groupAll();
-		var dateDim = ndx.dimension(function (d) {return d.dateObj});
+		//var all = ndx.groupAll();
+		dateDim = ndx.dimension(function (d) {return d[date_idx]});
+		monthDim = ndx.dimension(function (d) { return d[month_idx]; });
+		qtrDim = ndx.dimension(function (d) {return d[qtr_idx];});
+		yearDim = ndx.dimension(function (d) { return d[year_idx]; });
+		
+
+		dateGrp = createDimGroup(dateDim);
+		monthGrp = createDimGroup(monthDim);
+		qtrGrp = createDimGroup(qtrDim);
+		yearGrp = createDimGroup(yearDim);
 		
 		calculateCharts(timeGroup);
 		
-		var categoryDim = ndx.dimension(function (d) { return d.type; });
-		var statusDim = ndx.dimension(function (d) {return d.status;});
-		var countryDim = ndx.dimension(function(d){return d.country;});
-		
+		var categoryDim = ndx.dimension(function (d) { return d[category_idx]; });
+		var statusDim = ndx.dimension(function (d) {return d[status_idx];});
+		var countryDim = ndx.dimension(function(d){return d[country_idx];});
 		
 		var countryGrpCount = countryDim.group().reduceCount();
 		var timelineGrp = dateDim.group().reduceCount();
 		var typeTotal = categoryDim.group().reduceCount();
 		var statusTotal = statusDim.group().reduceCount();
 		
-		
 
+		
+		
+		
 		
 		statusChart.width(500)
 	    .height(200)
@@ -302,9 +416,9 @@ d3.json("model/countries.geo.json", function(error, world){
 	    .gap(20)
 	    .label(
 	    		function(v){
-	    			if (v.key == "processed") return "Processed";
-	    			if (v.key == "in-repair") return "In-Repair";
-	    			if (v.key == "failure") return "Failed";
+	    			if (v.key == "processed") return "Processed"+" : "+v.value;
+	    			if (v.key == "in-repair") return "In-Repair"+" : "+v.value;
+	    			if (v.key == "failure") return "Failed"+" : "+v.value;
 	    			})
 		//.x(d3.scale.linear().domain([minDate,maxDate]))
 	    .title(function (v) { return "Count: "+v.value; })
@@ -336,9 +450,7 @@ d3.json("model/countries.geo.json", function(error, world){
 		 .innerRadius(50)
 		 .label(
 	    		function(v){
-	    			if (v.key == "C") return "Category 1";
-	    			if (v.key == "F") return "Category 2";
-	    			if (v.key == "C&F") return "Category 3";
+	    			return v.key +" : "+v.value;
 	    			})
 		 .renderLabel(true)
 		 .title(function (v) { return "Count: "+v.value; })
@@ -385,7 +497,7 @@ d3.json("model/countries.geo.json", function(error, world){
 		.width(700)
 		.height(80)
 		.dimension(dateDim)
-		.x(d3.time.scale().domain([d3.time.year.floor(dateDim.bottom(1)[0].dateObj), d3.time.year.ceil(dateDim.top(1)[0].dateObj)]))
+		.x(d3.time.scale().domain([d3.time.year.floor(dateDim.bottom(1)[0][date_idx]), d3.time.year.ceil(dateDim.top(1)[0][date_idx])]))
 		.brushOn(true)
 		.controlsUseVisibility(true)
 		.group(timelineGrp,"Trades/Day")
@@ -412,24 +524,27 @@ function calculateCharts(timeGrp){
 	'<td name="repairPercent"></td><td name="failedCount"></td><td name= "failedPercent"></td><td name="cCount"></td><td name="cPercent"></td>'+
 	'<td name="fCount"></td><td name="fPercent"></td><td name="cfCount"></td><td name="cfPercent"></td>';
 	var dim;
+	var yrStatGroup ;
 	monthNameFormat = d3.time.format("%b");
 	
 	$("#data_table tbody").html('');
 	switch(timeGrp) {
 	    case "day":
-	    	dim = ndx.dimension(function (d) { return d.dateObj; });
-	    	totalChart.x(d3.time.scale().domain([d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)]));
-	    	totalChart.xAxis().tickValues( d3.time.month.range(d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)),1);
+	    	dim = dateDim;
+	    	yrStatGroup = dateGrp;
+	    	totalChart.x(d3.time.scale().domain([d3.time.year.floor(dim.bottom(1)[0][date_idx]), d3.time.year.ceil(dim.top(1)[0][date_idx])]));
+	    	totalChart.xAxis().tickValues( d3.time.month.range(d3.time.year.floor(dim.bottom(1)[0][date_idx]), d3.time.year.ceil(dim.top(1)[0][date_idx])),1);
 	    	totalChart.xAxis().tickFormat(function(v){return monthNameFormat(v);});
 	    	
 	    	$("#data_table tbody").html('<tr><td colspan = "14">Disabled for selected time group</td></tr>');
 	    	
-	    	percentChart.x(d3.time.scale().domain([d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)]));
-	    	percentChart.xAxis().tickValues( d3.time.month.range(d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)),1);
+	    	percentChart.x(d3.time.scale().domain([d3.time.year.floor(dim.bottom(1)[0][date_idx]), d3.time.year.ceil(dim.top(1)[0][date_idx])]));
+	    	percentChart.xAxis().tickValues( d3.time.month.range(d3.time.year.floor(dim.bottom(1)[0][date_idx]), d3.time.year.ceil(dim.top(1)[0][date_idx])),1);
 	    	percentChart.xAxis().tickFormat(function(v){return monthNameFormat(v);});
 	        break;
 	    case "month":
-	    	dim = ndx.dimension(function (d) { return d.month; });
+	    	dim = monthDim;
+	    	yrStatGroup = monthGrp;
 	    	for(idx = 0; idx<12 ; idx++){
 	    		$("#data_table tbody").append('<tr id="data_row_'+idx+'"><td>'+monthNameFormat(new Date(2001,idx,2))+'</td>'+columnTags+'</tr>');
 	    	}
@@ -442,114 +557,36 @@ function calculateCharts(timeGrp){
 	        break;
 	    case "quater":
 	    	
-	        dim = ndx.dimension(function (d) {d.quarter;});
-	        
+	        dim = qtrDim;
+	        yrStatGroup = qtrGrp;
 	        for(idx = 1; idx<=4 ; idx++){
 	    		$("#data_table tbody").append('<tr id="data_row_'+idx+'"><td>Q'+idx+'</td>'+columnTags+'</tr>');
 	    	}
-	        totalChart.x(d3.scale.linear().domain([0,5])).xAxis().tickFormat(function(v){if([1,2,3,4].includes(v)) return 'Q'+v; else return '';});
+	        totalChart.x(d3.scale.linear().domain([0,5])).xAxis().tickFormat(function(v){if(v>=1 && v<=4) return 'Q'+v; else return '';});
 	        totalChart.xAxis().tickValues([0, 1, 2, 3, 4, 5]);
 	        
-	        percentChart.x(d3.scale.linear().domain([0,5])).xAxis().tickFormat(function(v){if([1,2,3,4].includes(v)) return 'Q'+v; else return '';});
+	        percentChart.x(d3.scale.linear().domain([0,5])).xAxis().tickFormat(function(v){if(v>=1 && v<=4) return 'Q'+v; else return '';});
 	        percentChart.xAxis().tickValues([0, 1, 2, 3, 4, 5]);
 	        
 	        break;
 	    case "year":
-	    	dim = ndx.dimension(function (d) { return d.year; });
-	    	
-	    	for(idx = dim.bottom(1)[0].dateObj.getFullYear(); idx<=dim.top(1)[0].dateObj.getFullYear() ; idx++){
+	    	dim = yearDim;
+	    	yrStatGroup = yearGrp;
+	    	for(idx = dim.bottom(1)[0][date_idx].getFullYear(); idx<=dim.top(1)[0][date_idx].getFullYear() ; idx++){
 	    		$("#data_table tbody").append('<tr id="data_row_'+idx+'"><td>'+idx+'</td>'+columnTags+'</tr>');
 	    	}
-	    	totalChart.x(d3.scale.linear().domain([  dim.bottom(1)[0].dateObj.getFullYear()-1, dim.top(1)[0].dateObj.getFullYear()+1]))
+	    	totalChart.x(d3.scale.linear().domain([  dim.bottom(1)[0][date_idx].getFullYear()-1, dim.top(1)[0][date_idx].getFullYear()+1]))
 	    	.xAxis().tickFormat(function(v){if(Number.isInteger(v)) return v; else return '';});
-	    	totalChart.xAxis().tickValues([dim.bottom(1)[0].dateObj.getFullYear()-1, dim.bottom(1)[0].dateObj.getFullYear(), dim.bottom(1)[0].dateObj.getFullYear()+1]);
+	    	totalChart.xAxis().tickValues([dim.bottom(1)[0][date_idx].getFullYear()-1, dim.bottom(1)[0][date_idx].getFullYear(), dim.bottom(1)[0][date_idx].getFullYear()+1]);
 	    	
 	    	
-	    	percentChart.x(d3.scale.linear().domain([  dim.bottom(1)[0].dateObj.getFullYear()-1, dim.top(1)[0].dateObj.getFullYear()+1]))
+	    	percentChart.x(d3.scale.linear().domain([  dim.bottom(1)[0][date_idx].getFullYear()-1, dim.top(1)[0][date_idx].getFullYear()+1]))
 	    	.xAxis().tickFormat(function(v){if(Number.isInteger(v)) return v; else return '';});
-	    	percentChart.xAxis().tickValues([dim.bottom(1)[0].dateObj.getFullYear()-1, dim.bottom(1)[0].dateObj.getFullYear(), dim.bottom(1)[0].dateObj.getFullYear()+1]);
+	    	percentChart.xAxis().tickValues([dim.bottom(1)[0][date_idx].getFullYear()-1, dim.bottom(1)[0][date_idx].getFullYear(), dim.bottom(1)[0][date_idx].getFullYear()+1]);
 	        break;
 
 	} ;
 	
-	var yrStatGroup = dim.group().reduce(
-		function (p,v){
-			p.totalCount++;
-			if(v.status == "processed") p.processedCount++;
-			if(v.status == "in-repair") p.repairCount++;
-			if(v.status == "failure") p.failureCount++;
-			if(v.type == "C") p.cat1Count++;
-			if(v.type == "F") p.cat2Count++;
-			if(v.type == "C&F") p.cat3Count++;
-			
-			if(p.totalCount>0){
-				p.processPercent = d3.format(".2f")((p.processedCount/p.totalCount)*100);
-				p.failurePercent = d3.format(".2f")((p.failureCount/p.totalCount)*100);
-				p.repairPercent = d3.format(".2f")((p.repairCount/p.totalCount)*100);
-				p.cat1Percent = d3.format(".2f")((p.cat1Count/p.totalCount)*100);
-				p.cat2Percent = d3.format(".2f")((p.cat2Count/p.totalCount)*100);
-				p.cat3Percent = d3.format(".2f")((p.cat3Count/p.totalCount)*100);
-			} else {
-				p.processPercent = 0;
-				p.failurePercent = 0;
-				p.repairPercent = 0;
-				p.cat1Percent = 0;
-				p.cat2Percent = 0;
-				p.cat3Percent = 0;
-			}
-			
-			return p;
-		},
-		
-		function (p,v){
-			p.totalCount--;
-			if(v.status == "processed") p.processedCount--;
-			if(v.status == "in-repair") p.repairCount--;
-			if(v.status == "failure") p.failureCount--;
-			if(v.type == "C") p.cat1Count--;
-			if(v.type == "F") p.cat2Count--;
-			if(v.type == "C&F") p.cat3Count--;
-			
-			if(p.totalCount > 0){
-				p.processPercent = d3.format(".2f")((p.processedCount/p.totalCount)*100);
-				p.failurePercent = d3.format(".2f")((p.failureCount/p.totalCount)*100);
-				p.repairPercent = d3.format(".2f")((p.repairCount/p.totalCount)*100);
-				p.cat1Percent = d3.format(".2f")((p.cat1Count/p.totalCount)*100);
-				p.cat2Percent = d3.format(".2f")((p.cat2Count/p.totalCount)*100);
-				p.cat3Percent = d3.format(".2f")((p.cat3Count/p.totalCount)*100);
-			}else {
-				p.processPercent = 0;
-				p.failurePercent = 0;
-				p.repairPercent = 0;
-				p.cat1Percent = 0;
-				p.cat2Percent = 0;
-				p.cat3Percent = 0;
-			}
-			
-			
-			
-			return p;
-		},
-		
-		function (){
-			return {
-				totalCount: 0,
-				processedCount: 0,
-				failureCount: 0,
-				repairCount: 0,
-				cat1Count: 0,
-				cat2Count: 0,
-				cat3Count: 0,
-				processPercent: 0,
-				failurePercent: 0,
-				repairPercent: 0,
-				cat1Percent: 0,
-				cat2Percent: 0,
-				cat3Percent: 0
-            };
-			
-		}
-	);
 	
 	
 	
@@ -648,14 +685,9 @@ function calculateCharts(timeGrp){
 	percentChart
 	.width(550).height(250)
 	.dimension(dim)
-	//.x(d3.time.scale().domain([d3.time.year.floor(dim.bottom(1)[0].dateObj), d3.time.year.ceil(dim.top(1)[0].dateObj)]))
-	//.elasticY(true)
 	.y(d3.scale.linear().domain([0, 100]))
-	//.elasticX(true)
 	.brushOn(false)
 	.shareTitle(false)
-	//.xAxis().ticks(d3.time.months)
-	//.tickFormat(d3.time.format("%B"))
 	.compose([
 	          
 	          
